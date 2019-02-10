@@ -66,3 +66,7 @@ d = {
 }
 print(d)
 print({k: d[k] + 10 for k in d})
+d.update({
+    'a': 150
+})
+print(d)
