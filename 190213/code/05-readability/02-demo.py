@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-
-
 def reverse_integer(x):
     """
     >>> reverse_integer(1234567890123)

@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-
-
 def valid_palindrome(s):
     """
     >>> valid_palindrome("aba")
