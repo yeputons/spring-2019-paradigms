@@ -20,3 +20,21 @@ s = s + "bar"
 s += "bar"  # shorthand
 ss = (s, s)
 # s[0] += "baz"
+
+# == vs is
+print([1, 2] == [1, 2])
+print([1, 2] is [1, 2])
+a = 10000 * 10000
+b = 100000000
+print(a == b)
+print(a is b)
+print(a is a)
+print(b is b)
+print(1 is 1)
+
+# Special type/value: None, like NULL
+print(None is None)
+print(None == None)
+print([1, 2] == None)
+print([1, 2] is None)
+# Idiom: is, not ==
