@@ -25,7 +25,7 @@ def reverse_integer(x):
     # 8. Convert string to int.
     for i in range(n):
         ten = 1
-        for j in range(i):  # 3. 10 ** i
+        for j in range(i):  # 3a. Underscore; 3b. 10 ** i
             ten *= 10
         x += ten * digits[i]
     print(x)
