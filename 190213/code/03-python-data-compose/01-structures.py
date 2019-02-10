@@ -58,3 +58,11 @@ print('ы'.encode('utf-16'))
 print(list('ы'.encode('utf-16')))
 print(list('ы'.encode('utf-8')))
 print(list('ы'.encode('1251')))
+
+# Dicts
+d = {
+    'a': 100,
+    23: 50
+}
+print(d)
+print({k: d[k] + 10 for k in d})
