@@ -12,6 +12,11 @@
 }
 
 \renewcommand{\t}[1]{\ifmmode{\mathtt{#1}}\else{\texttt{#1}}\fi}
+\newcommand{\svgimg}[1]{
+  \begin{center}
+	\includegraphics[scale=1]{#1.pdf}
+  \end{center}
+}
 
 \title{Структурное программирование}
 \author{Егор Суворов}
@@ -28,5 +33,6 @@
 
 \input{00-org}
 \input{01-paradigms}
+\input{02-python}
 
 \end{document}
