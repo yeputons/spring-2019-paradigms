@@ -20,8 +20,11 @@
 		\item Синтаксис несовместим, учим новую
 		\item Среды разработки: Wing IDE, PyCharm (бесплатно для студентов), любой текстовый редактор и консоль
 		\item Строгая динамическая типизация (в C++ "--- слабая статическая)
-		\item Время для демо и практики!
 	\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Демо}
+	Время для демо!
 \end{frame}
 
 \begin{frame}[t]{<<Примитивные>> типы}
@@ -54,4 +57,67 @@
 	лишние объекты для \texttt{int}.
 	
 	А может не оптимизировать.
+\end{frame}
+
+\begin{frame}[t]{Демо}
+	Время для демо!
+\end{frame}
+
+\begin{frame}[t,fragile]{Практика}
+	Прямо на занятии:
+	\begin{enumerate}
+	\item Скачайте файл \href{https://github.com/yeputons/spring-2019-paradigms/blob/master/190213/code/05-readability/03-practice.py}{190213/code/05-readability/03-practice.py} из репозитория
+	\item Откройте его в IDE (вроде Wing IDE) или текстовом редакторе с подсветкой (вроде Notepad++, Far\ldots)
+	\item Запустите либо в IDE, либо в консоли: \texttt{python~03-practice.py}
+	\item Реализуйте функцию
+	\item Подзовите меня, я посмотрю на код и дам рекомендации
+	\end{enumerate}
+	Внимание:
+	\begin{itemize}
+	\item Задавайте \textit{любые} вопросы
+	\item Следствие: сейчас разбираться эффективнее, чем дома
+	\item Запускайте doctests для проверки, добавляйте свои
+	\item Помогайте друг другу
+	\item Работа в классе никак не влияет на оценки
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Демо}
+	Время для демо!
+\end{frame}
+
+\begin{frame}[t]{doctest vs pytest}
+	Лучше pytest\footnote{\href{https://nedbatchelder.com/blog/200811/things_i_dont_like_about_doctest.html}{Ned Batchelder, ``Things I don’t like about doctest''}}:
+	\begin{itemize}
+	\item Тесты "--- это код\footnote{\href{https://bemusement.org/doctests-arent-code}{Andrew Bennetts, ``Tests are code, doctests aren't''}}
+	\item Можно проверить вывод сложным образом
+	\item Можно сделать большой тест
+	\item Позволяет сделать независимые тесты
+	\item Следствие: можно запустить только какие-то тесты
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Какие тесты писать}
+	\begin{itemize}
+	\item Простые (smoke test): хоть что-то работает
+	\item Крайние случаи (black box):
+		\begin{itemize}
+		\item Минимальный по размеру; в каждом измерении
+		\item Крайние и <<средние>> ограничения в задаче; в каждом измерении
+		\item Минимальный/максимальный ответ
+		\end{itemize}
+	\item Крайние случаи (white box):
+		\begin{itemize}
+		\item На каждый внутренний \texttt{if}
+		\item На каждый внутренний цикл: вдруг (не) выполнится
+		\end{itemize}
+	\item Все, где у вас были баги (regression tests):
+		\begin{itemize}
+		\item Нашли баг
+		\item Написали тест
+		\item \textit{Проверили, что тест падает}
+		\item Исправили
+		\item Проверили, что тест проходит
+		\end{itemize}
+	\end{itemize}
 \end{frame}
