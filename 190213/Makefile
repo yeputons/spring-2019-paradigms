@@ -8,8 +8,8 @@ all: $(NAME).pdf
 
 svgs: $(SVGPDFS)
 
-$(NAME).pdf: $(wildcard *.tex $(NAME).*) $(SVGPDFS)
-	pdflatex -shell-escape "$<" && pdflatex -shell-escape "$<"
+$(NAME).pdf: $(filter-out $(NAME).pdf, $(wildcard *.tex $(NAME).*)) $(SVGPDFS)
+	pdflatex -shell-escape "$(NAME).tex" && pdflatex -shell-escape "$(NAME).tex"
 
 %.pdf: %.svg
 	inkscape -D "--file=$<" "--export-pdf=$@"
