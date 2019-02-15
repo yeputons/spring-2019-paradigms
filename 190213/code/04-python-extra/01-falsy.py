@@ -17,3 +17,10 @@ if len(x) > 0:  # Bad
     print(x[0])
 if x:  # Good
     print(x[0])
+
+# Consequence: and/or returns either argument, not True/False
+# x and y = x if x else y
+# x or y = y if x else x
+
+# Standard idiom for adding default value for an 'optional' variable:
+a = a or "default"

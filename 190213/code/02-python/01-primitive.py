@@ -35,3 +35,4 @@ print("Even" if b % 2 == 0 else "Odd")
 # Mind two different divisions! Esp. Python 3
 print(b / 100)
 print(b // 100)
+print(2.2 % 1.3)  # Works with floats as well

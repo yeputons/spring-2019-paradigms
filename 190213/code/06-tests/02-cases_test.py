@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Run this file like `python 02-cases_test.py` to run all tests.
+# Alternatively, run `pytest` from this directory, it will
+# do the same: discover all test and run them.
 from math import gcd
 
 

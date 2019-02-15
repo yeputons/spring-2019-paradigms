@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# Just run this file like `python 02-demo.py` to run doctest,
+# see the bottom of the file for magic lines.
+
+
 def reverse_integer(x):
     """
     >>> reverse_integer(1234567890123)
