@@ -5,7 +5,7 @@ import functools
 def my_decorator(func):
     calls = 0
 
-    @functools.wraps(func)
+    @functools.wraps(func)  # Read about idioms!
     def wrapper():
         nonlocal calls
         calls += 1

@@ -11,7 +11,7 @@ def my_decorator(func):
     return wrapper
 
 
-@my_decorator
+@my_decorator  # foo = my_decorator(foo)
 def foo():
     print('foo!')
 
