@@ -1,0 +1,210 @@
+% !TeX root = 190220.tex
+\section{Процедуры}
+\begin{frame}[t,fragile]{Историческая справка}
+	<<Подпрограммы>> "--- выделили кусок кода, дали имя, можно вызывать.
+\begin{minted}{python}
+arr = [1, 2, 3]
+def print_array():
+    print(' '.join(map(str, arr)))
+print_array()
+arr.append(3)
+print_array()
+\end{minted}
+	Отличие от \verb`goto` "--- можно вызвать из любого места:
+	\begin{itemize}
+	\item Можно перед вызовом дописать в конец \verb`goto` куда надо
+	\item Можно честный стек вызовов, тогда допустима рекурсия
+	\end{itemize}
+	
+	Получаем механизм \textit{абстракции} для кода
+	(раньше были только примитивы и композиция).
+\end{frame}
+
+\begin{frame}[t,fragile]{Параметры}
+	Так неудобно:
+\begin{minted}{cpp}
+vector<int> a, b, c;  // Длинная арифметика
+void subtract() {
+	// c = a - b;
+}
+// b = c - a;  // ???
+\end{minted}
+
+	Так уже лучше:
+\begin{minted}{cpp}
+void subtract(const vector<int> &a, const vector<int> &b,
+              vector<int> &result) {
+	// c = a - b;
+}
+vector<int> a, b, c;  // Длинная арифметика
+subtract(a, b, c);  // c = a - b;
+\end{minted}
+	Теперь полностью контролируем \textit{данные}, с которыми работает код
+\end{frame}
+
+\begin{frame}[t,fragile]{Возвращаемое значение}
+	Конвенция для шаблона:
+\begin{minted}{cpp}
+void add(int a, int b, int *result) {
+    *result = a + b;
+}
+int x; add(2, 2, &x);
+\end{minted}
+	Теперь так:
+\begin{minted}{cpp}
+int add(int a, int b) {
+    return result;
+}
+int x = add(2, 2);
+\end{minted}
+	\begin{itemize}
+	\item	Имеет смысл только если в языке есть выражения
+	\item
+		В разных языках параметры и возвращаемые значения
+		реализованы по-разному $\Rightarrow$ разные ограничения
+	\item
+		В языках вроде C/C++/Rust есть ещё разные \textit{конвенции вызовов}
+		о том, как передавать параметры на ассемблере
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[t,fragile]{Python: множественный возврат}
+	Идиома: возвращаем кортеж, а на месте распаковываем:
+\begin{minted}{python}
+def partition(arr, middle):
+    return ([x for x in arr if x < middle],
+            [x for x in arr if x >= middle])
+left, right = partition([1, 2, 3, 4, 1], 3)
+\end{minted}
+
+	Скобки можно опустить:
+\begin{minted}{python}
+def divmod(a, b):  # Встроенная функция
+    return a // b, a % b
+q, r = divmod(10, 3)
+\end{minted}
+
+	Осторожно: если значений много, то легко перепутать порядок или типы;
+	для сложных вещей лучше вернуть объект (будут дальше)
+\end{frame}
+
+\begin{frame}[t,fragile]{Python: именованные параметры}
+	При вызове можно говорить, какой параметр чему равен:
+\begin{minted}{python}
+def line_contains(a, b, c, x, y):
+	return a * x + b * y == c
+print(line_contains(1, 1, 2, 1, -1))
+print(line_contains(a=1, b=1, c=2, x=1, y=-1))
+\end{minted}
+	\begin{itemize}
+	\item Читать код проще: не надо помнить порядок
+	\item Какие-то аргументы можно не указать
+	\item Можно указать аргументы в другом порядке
+	\end{itemize}
+
+\begin{minted}{python}
+assert int('13', 8) == 11
+assert int('13', base=8) == 11
+\end{minted}
+	В C++ такого нет: имя параметра при компиляции стирается.
+\end{frame}
+
+\begin{frame}[t,fragile]{Python: необязательные параметры}
+	Можно задать значение по умолчанию:
+\begin{minted}{python}
+def foo(fname, what=None, why=None):
+    what = what or 'somewhat'
+    why = why or 'somwhy'
+    print(fname, what, why)
+foo('foo.txt')  # foo.txt somewhat somewhy
+foo('foo.txt', what='x')  # foo.txt x somewhy
+foo('foo.txt', why='x')  # foo.txt somewhat x
+foo('foo.txt', 'x')  # foo.txt x somewhy
+
+open('file.txt', 'r')
+open('file.txt', 'r', 1024, 'utf-8')
+open('file.txt', encoding='utf-8', mode='r', buffering=1024)
+\end{minted}
+\end{frame}
+
+\begin{frame}[t,fragile]{Python: значения необязательных параметров}
+\begin{minted}{python}
+def append_1(lst=[]):
+    lst.append(1)
+    return lst
+print(append_1([1, 2, 3]))  # [1, 2, 3, 1]
+print(append_1([]))  # [1]
+print(append_1([]))  # [1]
+print(append_1())  # [1]
+print(append_1())  # [1, 1]
+print(append_1([]))  # [1]
+print(append_1())  # [1, 1, 1]
+\end{minted}
+	Причина: значение по умолчанию <<вшивается>> в функцию в момент её создания, а не каждый раз при вызове.
+	
+	Решение: использовать \verb`None` и \verb`or`.
+\end{frame}
+
+\begin{frame}[t,fragile]{Python: строго именованные параметры}
+	Если знаем, что пользователи запутаются в порядке аргументов:
+\begin{minted}{python}
+def foo(fname, *, what=None, why=None):
+    what = what or 'somewhat'
+    why = why or 'somwhy'
+    print(fname, what, why)
+foo('foo.txt')  # foo.txt somewhat somewhy
+foo('foo.txt', what='x')  # foo.txt x somewhy
+foo('foo.txt', why='x')  # foo.txt somewhat x
+foo('foo.txt', 'x')  # Error
+\end{minted}
+\end{frame}
+
+\begin{frame}{Когда выделять процедуру}
+	\begin{itemize}
+	\item Код встречается много раз по всей программе
+	\item Код хочется протестировать отдельно
+	\item Хочется абстрагироваться от конкретного способа решения подзадачи
+	\end{itemize}
+	
+	Продвинутые вопросы:
+	\begin{enumerate}
+	\item
+		Если не выносить в процедуру, действительно ли потребуется
+		менять все части кода согласованно?
+	\item
+		Сколько кода экономит вынесение в процедуру?
+	\item
+		Какие решения мы принимаем за пользователя процедуры?
+	\item
+		Насколько часто процедура будет использоваться?
+	\item
+		Что случится, если в процедуре баг и повлияет на всю программу?
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}{Время для демо!}
+\end{frame}
+
+\begin{frame}{Стандартные куски}
+	Выделяйте в разные процедуры:
+	\begin{itemize}
+	\item Чтение данных из внешнего мира
+	\item Вывод данных во внешний мир
+	\item Перевод из одного представления данных в другое
+	\item Разные стадии обработки
+	\item Всё, что придётся отлаживать отдельно
+	\end{itemize}
+	
+	Пример последовательности процедур для суммы на отрезке:
+	\begin{enumerate}
+	\item Считать массив
+	\item Считать параметры для генерации случайных запросов
+	\item \textbf{Посчитать частичные суммы, получить отдельный массив}
+	\item Для каждого запроса в цикле:
+		\begin{enumerate}
+		\item \textbf{Сгенерировать запрос}
+		\item \textbf{Посчитать ответ для запроса}
+		\item Вывести ответ на экран
+		\end{enumerate}
+	\end{enumerate}
+\end{frame}
