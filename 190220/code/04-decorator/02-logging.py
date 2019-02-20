@@ -2,8 +2,8 @@
 def my_decorator(func):
     calls = 0
 
-    def wrapper():  # *args, **kwargs not covered
-        nonlocal calls
+    def wrapper():  # Can also add *args, **kwargs
+        nonlocal calls  # MAGIC, TBD later
         calls += 1
         print('called!', calls)
         func()

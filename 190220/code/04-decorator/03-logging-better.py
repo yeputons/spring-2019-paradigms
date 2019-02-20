@@ -7,11 +7,12 @@ def my_decorator(func):
 
     @functools.wraps(func)  # Read about idioms!
     def wrapper():
-        nonlocal calls
+        nonlocal calls  # MAGIC, TBD later
         calls += 1
         print('called! {}'.format(calls))
         func()
         print('finished!')
+    # wrapper.__name__ = func.__name__  # replaced by .wraps()
     return wrapper
 
 

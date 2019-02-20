@@ -17,16 +17,18 @@ def format_person(p):
     return '{}. {}, born on {}'.format(p.first_name[:1], p.last_name, p.birth_date)
 
 
-def print_table(title, people):
+def print_table(people, * title):
     print('--- {} ---'.format(title))
     for p in people:
         print('* ' + format_person(p))
     print('Total: {}'.format(len(people)))
 
 
-print_table('Physics', [p for p in people if p.area == 'physics'])
+print_table([p for p in people if p.area == 'physics'],
+            title='Physics')
 print()
-print_table('Computer Science', [p for p in people if p.area == 'cs'])
+print_table([p for p in people if p.area == 'cs'],
+            title='Computer Science')
 
 oldest = min(people, key=lambda p: p.birth_date)
 print('Oldest person: ' + format_person(oldest))
