@@ -143,7 +143,6 @@
 * Разбираем пример с нуля: https://tech.yandex.ru/maps/geosearch/
   * В браузере
   * В curl
-  * В PostMan
   * В requests
   * Руками
 * Также API бывает для сайтов типа ВК (теория):
