@@ -67,6 +67,7 @@ TODO
 # Тестирование: принципы FIRST
 TODO
 # Тестирование: mock
+* `sys.stdin`, `monkeypatch` и `StringIO`
 TODO
 
 # Пояснения к домашнему заданию
