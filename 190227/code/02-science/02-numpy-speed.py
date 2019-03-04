@@ -2,16 +2,16 @@
 from timeit import timeit
 import numpy as np
 
-arr = list(range(1000000))
+arr = list(range(10000)) * 100
 print(timeit(
     stmt='sum(arr)',
     globals={'arr': arr},
     number=10
 ))
 
-arr = np.array(arr)
+np_arr = np.array(arr)
 print(timeit(
-    stmt='arr.sum()',
-    globals={'arr': arr},
+    stmt='np_arr.sum()',
+    globals={'np_arr': np_arr},
     number=10
 ))

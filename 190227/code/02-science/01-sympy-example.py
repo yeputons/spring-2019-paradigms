@@ -31,3 +31,7 @@ print(solve(
    ],
    x, y
 ))
+
+print(solve([x ** 2 - 2], x))
+print(solve([x ** 3 - 2], x))
+print(solve([x ** 4 - 2], x))
