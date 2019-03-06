@@ -1,34 +1,34 @@
 #!/usr/bin/env python3
 
-l = map(lambda x: x * 10, range(0, int(10)))
-print(l)
-print(next(l))
-print(next(l))
-print(next(l))
-print(next(l))
-print(list(l))
+lst = map(lambda x: x * 10, range(0, int(10)))
+print(lst)
+print(next(lst))
+print(next(lst))
+print(next(lst))
+print(next(lst))
+print(list(lst))
 
-l = filter(lambda x: x % 2 == 0, range(0, int(1e9)))
-print(l)
-print(next(l))
-print(next(l))
-print(next(l))
-print(next(l))
+lst = filter(lambda x: x % 2 == 0, range(0, int(1e9)))
+print(lst)
+print(next(lst))
+print(next(lst))
+print(next(lst))
+print(next(lst))
 
 # list comprehension
-l = [x * 10 for x in range(10)]
-print(l)
+lst = [x * 10 for x in range(10)]
+print(lst)
 
 # generator expression
-l = (x * 10 for x in range(int(1e9)))  # just like map
-print(l)
-print(next(l))
-print(next(l))
-print(next(l))
-# print(list(l))
+lst = (x * 10 for x in range(int(1e9)))  # Как map()
+print(lst)
+print(next(lst))
+print(next(lst))
+print(next(lst))
+# print(list(lst))
 
 print(sorted([x * 2 for x in range(10, 0, -1)]))
 
 print(sorted((x * 2 for x in range(10, 0, -1))))
 
-print(sorted(x * 2 for x in range(10, 0, -1)))
+print(sorted(x * 2 for x in range(10, 0, -1)))  # Сахар

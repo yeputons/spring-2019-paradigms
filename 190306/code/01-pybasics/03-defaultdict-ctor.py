@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
+
 class defaultdict:
-    # d = {} # static
+    # d = {}  # Так не надо
+
     def __init__(self):
         self.d = {}
 
@@ -10,8 +12,6 @@ class defaultdict:
             self.d[key] = []
         return self.d[key]
 
-# defaultdict.d = {}
-# defaultdict.get = lambda self, key: ...
 
 a = defaultdict()
 defaultdict.get(a, 'key').append(10)

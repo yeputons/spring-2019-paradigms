@@ -2,6 +2,8 @@
 
 # Java-style, на питоне так делать не надо:
 # это можно распилить в обычную функцию и константы
+
+
 class YandexTranslateApi:
     YANDEX_API_TRANSLATE_URL = '...'
     YANDEX_API_GET_LANGUAGES_URL = '...'
@@ -9,6 +11,7 @@ class YandexTranslateApi:
     @staticmethod
     def get_languages():
         return ['ru', 'en']
+
 
 print(YandexTranslateApi.get_languages())
 

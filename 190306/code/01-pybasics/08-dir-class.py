@@ -6,6 +6,7 @@ class Foo:
     def foo(self):
         print('foo')
 
+
 foo = Foo(10)
 print(dir(foo))
 print(foo.__dict__)

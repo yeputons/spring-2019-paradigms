@@ -4,7 +4,7 @@ x = [1, 2, 3]
 for i in x:
     print(i)
 
-it = iter(x)
+it = iter(x)  # Чтобы можно было делать for по итератору.
 assert iter(it) is it
 
 print(next(it))

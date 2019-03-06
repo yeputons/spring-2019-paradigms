@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
-#Не надо так писать, демонстрация isinstance
+# Не надо так писать, демонстрация isinstance, лучше
+# просто x.lower(), тогда автоматически вызовется нужный
+# bounded-метод
+
+
 def generic_lower(x):
     if isinstance(x, str):
         return str.lower(x)
@@ -8,6 +12,7 @@ def generic_lower(x):
         return bytes.lower(x)
     else:
         assert False
+
 
 print(generic_lower('Hello'))
 print(generic_lower(b'Hello'))

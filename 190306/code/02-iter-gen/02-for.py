@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# Аналог for i in c: f(i)
+
+
 def foreach(c, f):
     it = iter(c)
     while True:
@@ -9,7 +12,9 @@ def foreach(c, f):
             break
         f(val)
 
+
 foreach([1, 2, 3], print)
+
 
 def foreach_bad(c, f):
     it = iter(c)
@@ -19,9 +24,11 @@ def foreach_bad(c, f):
         except StopIteration:
             break
 
+
 def f_strange(x):
     print('f_strange', x)
     if x == 2:
-       raise StopIteration
+        raise StopIteration
 
-foreach_bad([1, 2, 3], f_strange)
+
+foreach_bad([1, 2, 3], f_strange)  # Упс, StopIteration потерян

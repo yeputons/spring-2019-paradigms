@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
+
 def foo():
     print('called!')
+
 
 print(type(foo))
 
@@ -26,6 +28,7 @@ print(type(type(foo)))
 print(foo.__name__)
 foo = foo.__call__
 print(foo.__name__)
+
 
 def bar():
     return bar()
