@@ -10,7 +10,7 @@ def read_number():
 
 def test_read_number(monkeypatch):
     monkeypatch.setattr(sys, 'stdin', StringIO('12'))
-    # requests.get
+    # Так можно даже requests.get "замокать"
     assert read_number() == 12
 
 
