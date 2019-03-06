@@ -1,16 +1,104 @@
-\begin{frame}[t]{Scope}
+\begin{frame}[t,fragile]{Scope-1}
 Динамическая область видимости, определяется в момент выполнения:
 
+\begin{center}
 \begin{forest}
 [ScopeRoot
 	[ScopeNonLocal
 		[ScopeLocal
-			[b=3]
+			[{b=3}]
 		]
-		[a=4]
+		[{a=4}]
 	]
-	[a=3]
-	[b=2]
+	[{b=2}]
+	[{c=5}]
 ]
 \end{forest}
+\end{center}
+\begin{itemize}
+\item \verb`ScopeLocal.b` $\rightarrow 3$
+\item \verb`ScopeLocal.a` $\rightarrow 4$
+\item \verb`ScopeLocal.c` $\rightarrow 5$
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,fragile]{Scope-2}
+Динамическая область видимости, определяется в момент выполнения:
+
+\begin{center}
+\begin{forest}
+[ScopeRoot
+	[ScopeNonLocal
+		[ScopeLocal
+			[{b=3}]
+		]
+		[{a=4}]
+		[\textbf{b=15}]
+		[\textbf{c=10}]
+	]
+	[{b=2}]
+	[{c=5}]
+]
+\end{forest}
+\end{center}
+\begin{itemize}
+\item \verb`ScopeLocal.b` $\rightarrow 3$
+\item \verb`ScopeLocal.a` $\rightarrow 4$
+\item \verb`ScopeLocal.c` $\rightarrow 10$
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,fragile]{Вызов функций в ЯТЬ-1}
+\begin{center}
+\begin{forest}
+[ScopeMain
+	[{fact=\texttt{Function(['n'], ...)}}]
+	[{number=3}]
+]
+\end{forest}
+\end{center}
+
+Выполняем вызов функции \verb`fact(number)`:
+\begin{itemize}
+\item Вычислили \verb`fact`
+\item Вычислили \verb`number`
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,fragile]{Вызов функций в ЯТЬ-2}
+\begin{center}
+\begin{forest}
+[ScopeMain
+	[{fact=\texttt{Function(['n'], ...)}}]
+	[{number=3}]
+	[ScopeFact3
+		[{n=3}]
+	]
+]
+\end{forest}
+\end{center}
+
+Выполняем вызов функции \verb`fact(n-1)`:
+\begin{itemize}
+\item Вычислили \verb`fact`: взято из \verb`ScopeMain`
+\item Вычислили \verb`n-1`: взято из \verb`ScopeFact3`
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,fragile]{Вызов функций в ЯТЬ-3}
+\begin{center}
+\begin{forest}
+[ScopeMain
+	[{fact=\texttt{Function(['n'], ...)}}]
+	[{number=3}]
+	[ScopeFact3
+		[{n=3}]
+		[ScopeFact2
+			[{n=2}]
+		]
+	]
+]
+\end{forest}
+\end{center}
 \end{frame}
