@@ -1,0 +1,40 @@
+\documentclass[utf8,xcolor=table]{beamer}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+%\usepackage{tikz-uml}
+\usepackage{minted}
+\usepackage{cmap}
+\usepackage{forest}
+
+\hypersetup{colorlinks,linkcolor=blue,urlcolor=blue}
+
+\mode<presentation>{
+	\usetheme{CambridgeUS}
+}
+
+\renewcommand{\t}[1]{\ifmmode{\mathtt{#1}}\else{\texttt{#1}}\fi}
+\newcommand{\svgimg}[1]{
+  \begin{center}
+	\includegraphics[scale=1]{#1.pdf}
+  \end{center}
+}
+
+\title{Объектно-ориентированное программирование-1}
+\author{Егор Суворов}
+\institute[СПбГУ]{Курс <<Парадигмы и языки программирования>>, группа 18.Б09-пу}
+\date[06.03.2019]{Среда, 6 марта 2019 года}
+
+\setlength{\arrayrulewidth}{1pt}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\input{01-theory}
+%\input{02-yat}
+
+\end{document}

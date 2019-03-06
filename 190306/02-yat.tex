@@ -1,0 +1,16 @@
+\begin{frame}[t]{Scope}
+Динамическая область видимости, определяется в момент выполнения:
+
+\begin{forest}
+[ScopeRoot
+	[ScopeNonLocal
+		[ScopeLocal
+			[b=3]
+		]
+		[a=4]
+	]
+	[a=3]
+	[b=2]
+]
+\end{forest}
+\end{frame}
