@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 class MyInt:
     def __init__(self, value):
         self.value = value
@@ -12,6 +11,7 @@ class MyInt:
 
     def __hash__(self):
         return hash(self.value)
+
 
 a1 = MyInt(3)
 a2 = MyInt(3)
@@ -26,10 +26,12 @@ d = {
 }
 print(d)
 
+
 def check_contract(a, b):
     if a == b:
         assert hash(a) == hash(b)
     # Java: o.hashCode(), o.equals(b)
+
 
 """
 # Нельзя класть изменяемые объекты в словари!
@@ -39,11 +41,14 @@ l.append(4)
 print(d[l]) # Упс
 """
 
+
 def str_hash(s):
     result = 0
     for c in s:
-        # Взять по модулю!
+        # Взять по модулю! А то длинка тормозит.
         result = (result * 239017 + ord(c))
     return result % (2 ** 32)
+
+
 print(str_hash('xxxxxxxxxxxx'))
 print(str_hash('x' * 100000))

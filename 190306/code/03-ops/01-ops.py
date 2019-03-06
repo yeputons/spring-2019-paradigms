@@ -2,17 +2,18 @@
 
 """
 Аргументы против перегрузки:
-(a + b) * c
-a.add(b).multiply(c)
+(a + b) * c  # Как бы быстро
+a.add(b).multiply(c)  # Понятно же, что медленно
 
-a || b  # параллельность
+a || b  # Параллельность прямых ^_^
 ТАК НЕ НАДО!
 1. || всё ещё остаётся исходный приоритет: a || b > 0
-2. || - логическое "или".
+2. || - логическое "или", "параллельность" - неочевидно
 
 vec a, b;
-a * b;
+a * b;  # Какое именно произведение - векторное или скалярное?
 """
+
 
 class MyInt:
     def __init__(self, value):
@@ -26,10 +27,11 @@ class MyInt:
             return MyInt(self.value + other.value)
         if isinstance(other, int):
             return MyInt(self.value + other)
-        return NotImplemented
+        return NotImplemented  # Чтобы попробовали __radd__ или TypeError
 
-    def __radd__(self, other):
+    def __radd__(self, other):  # reverse add
         return self + other
+
 
 a = MyInt(3)
 b = MyInt(5)
@@ -39,6 +41,7 @@ print(b)
 print(a + b)
 print(a + 3)
 print(3 + a)
+
 
 class MyOtherInt:
     def __init__(self, value):
@@ -55,6 +58,7 @@ class MyOtherInt:
 
     def __radd__(self, other):
         return self + other
+
 
 c = MyOtherInt(10)
 print(c + a)
