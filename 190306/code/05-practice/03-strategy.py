@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Можно даже писать моды, мод - один класс. Потом при загрузке
+# записываем мод в переменную strategy, а основной игровой цикл не меняем.
+
+
 class RandomStrategy:
     def get_next_turn(self):
         pass
@@ -16,4 +20,4 @@ class BalancedStrategy:
 stategy = RandomStrategy()
 
 while True:
-   go(strategy.get_next_turn(field))
+    go(strategy.get_next_turn(field))
