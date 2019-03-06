@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-
 def fac(n):
     if n == 0:
         return 1
     else:
         return n * fac(n - 1)
+
+
 assert fac(5) == 120
 
 yat_fac = FunctionDefinition('fac', Function(['n'], [
