@@ -126,6 +126,7 @@
 
 # Python ABC (Abstract base Class) [00:10]
 * https://www.python.org/dev/peps/pep-3119/
+* https://docs.python.org/3/library/collections.abc.html
 * Эмуляция интерфейсов из Java/C++
 * Помогает PyCharm понимать код
 * Возникает ошибка _при создании объекта_ , если что-то не реализовать
@@ -158,8 +159,10 @@ https://stackoverflow.com/questions/18024785/tdd-first-principle
 
 # Тестирование: mock [00:15]
 * `sys.stdin`, `monkeypatch` и `StringIO`
+  * https://docs.pytest.org/en/latest/monkeypatch.html
 * Можно мокать даже `requests.get`, но осторожно: не появится ли дублирование кода в тесте?
 * Пусть хотим протестировать объект, который зависит от других
   * Тогда он зависит от интерфейсов/контрактов, а не конкретных реализаций
   * Можно ему скормить "заглушку", которая ожидает определённые вызовы и отвечает, как надо
     * Заодно проверим, что заглушку вызывает, как надо
+  * https://docs.python.org/3/library/unittest.mock.html
