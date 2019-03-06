@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 class MyBaseClass:
     def __init__(self):
         print('inited MyBaseClass')
