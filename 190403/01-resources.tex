@@ -1,0 +1,40 @@
+% !TeX root = 190403.tex
+\begin{frame}[t]{Что такое ресурс?}
+	Что угодно, что надо после использования \textit{закрыть} или \textit{освободить},
+	иначе будут неприятности:
+
+	\begin{itemize}
+	\item Память
+	\item Файлы
+	\item Сетевые соединения
+	\item Объекты ОС (кисть, окно...)
+	\item Memory-mapped-file
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Сборщик мусора}
+	\begin{itemize}
+	\item Можно считать ссылки на каждый объект и освобождать, когда ссылок ноль
+	\item Не работает с циклами, но можно использовать как оптимизацию
+	\item Бывает \textit{сборщик мусора}: регулярно запускает dfs и удаляет объекты
+	\item Когда удаляет "--- неизвестно (может, никогда)
+	\item Если нужна детерминированность в закрытии "--- не подходит
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[t,fragile]{Стандартный шаблон}
+	\begin{itemize}
+		\item \textit{Захватить} в начале блока, \textit{отпустить}, когда из блока выходим
+		\item Нельзя где-то <<сохранить>> открытый ресурс и не забыть закрыть
+		\item Python: Менеджеры контекста
+		\item Java: try-with-resources
+		\item C++: RAII (но тут, правда, можно сохранить)
+	\end{itemize}
+	Могут быть тонкости, когда ресурсы используют друг друга по цепочке:
+\begin{minted}{java}
+try (BufferedReader r = new BufferedReader(
+             new FileReader("a.txt"))) {
+    return r.readLine();
+}
+\end{minted}
+\end{frame}

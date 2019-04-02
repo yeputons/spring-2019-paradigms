@@ -1,0 +1,211 @@
+% !TeX root = 190403.tex
+\begin{frame}[t]{Владение}
+	Идеология, используемая в Rust и в C++:
+	\textbf{у каждого объекта есть ровно один владелец},
+	который его освобождает, когда сам умирает.
+
+	\begin{center}
+	\begin{forest}
+	[\texttt{fn main()},for tree={align=center,draw,fit=tight,font=\ttfamily}
+		[{phone\_book: Vec<BookEntry>},
+			[{[0]: BookEntry}
+				[name: String]
+				[phone: String]
+			]
+			[{[1]: BookEntry}
+				[\dots]
+			]
+			[{[2]: BookEntry}
+				[\dots]
+			]
+		]
+	]
+	\end{forest}
+	\end{center}
+\end{frame}
+
+\begin{frame}[t]{Передача владения}
+	Функция для чтения нового элемента:
+
+	\begin{center}
+	\begin{forest}
+	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily}
+	[{fn main()}
+		[{phone\_book: Vec<BookEntry>},
+			[\dots]
+			[{[3]: BookEntry},name=new
+				[{name: String}]
+				[{phone: String}]
+			]
+		]
+	]
+	[{fn read() -> BookEntry}
+		[{result: BookEntry},dashed,name=old
+			[{name: String},dashed]
+			[{phone: String},dashed]
+		]
+	]
+	]
+	\draw [->] (old) -- (new);
+	\end{forest}
+	\end{center}
+\end{frame}
+
+\begin{frame}[t]{Одалживание}
+	Функция для вывода элемента на экран:
+
+	\begin{center}
+	\begin{forest}
+	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily}
+	[{fn main()}
+		[{phone\_book: Vec<BookEntry>},
+			[\dots]
+			[{[3]: BookEntry},name=existing
+				[{name: String}]
+				[{phone: String}]
+			]
+		]
+	]
+	[{fn print(x: \&BookEntry)}
+		[{x: \&BookEntry},dashed,name=borrow
+			[{name: \&String},dashed]
+			[{phone: \&String},dashed]
+		]
+	]
+	]
+	\draw [->] (existing) -- (borrow);
+	\end{forest}
+	\end{center}
+\end{frame}
+
+\begin{frame}[t]{Одновременные иммутабельные ссылки}
+	\begin{center}
+	\begin{forest}
+	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily,edge=dashed}
+		[{let mut s: String},blue
+			[{let s2: \&String = \&s}
+				[{let s3: \&\&String = \&s2}]
+			]
+			[{let s4: \&String = \&s}]
+		]
+	]
+	\end{forest}
+	\end{center}
+\end{frame}
+
+
+\begin{frame}[t]{Цепочка мутабельных ссылок}
+	\begin{center}
+	\begin{forest}
+	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily,edge=dashed}
+		[{let mut s: String},dashed
+			[{let mut s2: \&mut String = \&mut s},dashed
+			[{let mut s3: \&mut \&mut String = \&s2}]
+			]
+		]
+	]
+	\end{forest}
+	\end{center}
+\end{frame}
+
+\begin{frame}[t]{Конфликт мутабельных ссылок}
+	\begin{center}
+	\only<1>{
+	\begin{forest}
+	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily,edge=dashed}
+		[{let mut s: String},dashed
+			[{let mut s2: \&mut String = \&mut s},s=-2cm]
+			[{let mut s3: \&mut String = \&mut s},s=2cm,l=2cm,red]
+		]
+	]
+	\end{forest}
+	}
+	\only<2>{
+	\begin{forest}
+	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily,edge=dashed}
+		[{let mut s: String},dashed
+			[{let s2: \&String = \&s},s=-2cm]
+			[{let mut s3: \&mut String = \&mut s},s=2cm,l=2cm,red]
+		]
+	]
+	\end{forest}
+	}
+	\only<3>{
+	\begin{forest}
+	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily,edge=dashed}
+		[{let mut s: String},dashed
+			[{let mut s2: \&mut String = \&mut s},s=-2cm]
+			[{let s3: \&String = \&s},s=3cm,l=2cm,red]
+		]
+	]
+	\end{forest}
+	}
+	\end{center}
+\end{frame}
+
+\begin{frame}[t]{Заморозка мутабельных ссылок}
+	\begin{center}
+	\begin{forest}
+	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily,edge=dashed}
+		[{let mut s: String},dashed
+			[{let mut s2: \&mut String = \&mut s},blue
+			[{let s3: \&mut \&mut String = \&s2}]
+			]
+		]
+	]
+	\end{forest}
+	\end{center}
+\end{frame}
+
+\begin{frame}[t]{Замыкания: \texttt{Fn}}
+	\begin{center}
+	\begin{forest}
+	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily,edge}
+		[{fn foo()},s sep=1cm
+			[{let x: String},name=borrowed
+				[{let y = \&x},edge=dashed]
+			]
+			[{|| x.len()},name=closure]
+		]
+	]
+	\draw [->,dashed] (closure) -- (borrowed);
+	\end{forest}
+	\end{center}
+\end{frame}
+
+\begin{frame}[t]{Замыкания: \texttt{FnMut}}
+	\begin{center}
+	\begin{forest}
+	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily,edge}
+		[{fn foo()},s sep=1cm
+			[{let mut x: String},name=borrowed
+				[{let y = \&x},edge=dashed,red]
+				[{let z = \&mut x},edge=dashed,red]
+			]
+			[{|| x.push('a')},name=closure]
+		]
+	]
+	\draw [->,dashed] (closure) -- (borrowed);
+	\end{forest}
+	\end{center}
+\end{frame}
+
+
+\begin{frame}[t]{Замыкания: \texttt{FnOnce}}
+	\begin{center}
+	\begin{forest}
+	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily,edge}
+		[{fn foo() -> impl FnOnce() -> String},s sep=1cm
+			[{let mut x: String},name=moved,red
+			]
+			[{move || x},name=closure]
+		]
+		[{fn main()},
+			[{closure},name=var]
+		]
+	]
+	\draw [->,dashed] (moved) -- (closure);
+	\draw [->,dashed] (closure) -- (var);
+	\end{forest}
+	\end{center}
+\end{frame}
