@@ -196,9 +196,9 @@
 	\begin{forest}
 	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily,edge}
 		[{fn foo() -> impl FnOnce() -> String},s sep=1cm
-			[{let mut x: String},name=moved,red
+			[{let mut x: String},name=moved,dashed
 			]
-			[{move || x},name=closure]
+			[{move || x},name=closure,dashed]
 		]
 		[{fn main()},
 			[{closure},name=var]
