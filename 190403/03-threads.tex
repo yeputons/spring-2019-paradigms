@@ -67,3 +67,77 @@
 	\end{center}
 	Канал жив, пока жив его <<single>> конец (тут "--- \texttt{rx}).
 \end{frame}
+
+\begin{frame}[t]{Распараллеливание перебора: до}
+	\begin{center}
+	\begin{forest}
+	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily}
+		[?????
+			[0????
+				[00???
+					[000 [\dots]]
+					[001 [\dots]]
+				]
+				[01???
+					[010 [\dots]]
+					[011 [\dots [01101,red]]]
+				]
+			]
+			[1????,for tree={dashed,edge=dashed}
+				[10???
+					[100 [\dots [10001,red]]]
+					[101 [\dots]]
+				]
+				[11???
+					[110 [\dots]]
+					[111 [\dots]]
+				]
+			]
+		]
+	]
+  \path (current bounding box.west)|-coordinate(l)(!111.south);
+  \path (current bounding box.east)|-coordinate(r)(!111.south);
+  \draw[blue,thick] (l)--(r);
+	\end{forest}
+	\end{center}
+\end{frame}
+
+
+\begin{frame}[t]{Распараллеливание перебора: после}
+	\begin{center}
+	\begin{forest}
+	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily,l sep*=0.5,l*=0.5,scale=0.8}
+		[?????
+			[0????
+				[{00???,spawn}
+					[00???,edge={->,dashed},tikz={\node [draw,blue,fit=()(!11)(!21)]{};},l*=2
+						[000 [\dots]]
+						[001 [\dots]]
+					]
+				]
+				[{01???,spawn}
+					[01???,edge={->,dashed},tikz={\node [draw,blue,fit=()(!11)(!211)]{};},l*=2
+						[010 [\dots]]
+						[011 [\dots [{tx01.send(01101)},red,s-=2cm]]]
+					]
+				]
+			]
+			[1????
+				[{10???,spawn}
+					[10???,edge={->,dashed},tikz={\node [draw,blue,fit=()(!111)(!21)]{};},l*=2
+						[100 [\dots [{tx10.send(10001)},red,s+=2cm]]]
+						[101,for tree={dashed,edge=dashed} [\dots]]
+					]
+				]
+				[{11???,spawn}
+					[11???,edge={->,dashed},tikz={\node [draw,blue,fit=()(!11)(!21)]{};},l*=2
+						[110 [\dots]]
+						[111 [\dots]]
+					]
+				]
+			]
+		]
+	]
+	\end{forest}
+	\end{center}
+\end{frame}
