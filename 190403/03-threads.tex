@@ -1,0 +1,69 @@
+% !TeX root = 190403.tex
+\begin{frame}[t]{Многопоточность}
+	\begin{itemize}
+	\item В программе могут одновременно выполняться несколько \textit{потоков}
+	\item Можно для реального ускорения вычислений (несколько ядер у процессора)
+	\item Можно для многозадачности (даже на одном ядре)
+	\item Можно передавать сообщения между потоками через \textit{каналы}
+	\item Можно использовать общую память (будет потом)
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[t,fragile]{Каналы}
+	MPSC (multiple producer, single consumer):
+	\begin{center}
+	\begin{forest}
+	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily}
+		[{fn main()},fit=band
+			[{rx.recv() // 10/20},no edge,name=recv1
+			[{rx.recv() // 20/10},no edge,name=recv2
+			]
+			]
+		]
+		[канал,l*=3,dashed,name=channel]
+		[{move || ...},fit=band
+			[{tx1.send(10)},name=send1,no edge]
+		]
+		[{move || ...},name=t2,tier=t2,fit=band
+			[{tx2.send(20)},name=send2,no edge]
+		]
+	]
+	\draw [->,dashed] (send1.south) -- (channel.east);
+	\draw [->,dashed] (send2.south) -- (channel.east);
+	\draw [<-,dashed] (recv1.east) -- (channel.west);
+	\draw [<-,dashed] (recv2.east) -- (channel.west);
+	\end{forest}
+	\end{center}
+\end{frame}
+
+\begin{frame}[t,fragile]{Владение каналами}
+	\begin{center}
+	\begin{forest}
+	[,phantom,for descendants={align=center,draw,fit=tight,font=\ttfamily,l=0.2cm,l sep=0.2cm,scale=0.85}
+		[{fn main()},name=main,fit=band
+			[{(tx: Sender<i32>,\\rx: Receiver<i32>)\\= channel()}
+				[{tx\_t1 = tx.clone()},l=1.75cm,s=-1cm,name=tx1a,dashed,edge=dashed,tier=t1
+				[{t1 = thread::spawn},name=t1var,no edge
+				]
+				]
+				[{tx\_t2 = tx.clone()},l=3.5cm,name=tx2a,dashed,edge=dashed,tier=t2
+				[{t2 = thread::spawn},name=t2var,no edge
+				]
+				]
+			]
+		]
+		[{move || ...},name=t1,tier=t1,fit=band
+			[{tx\_t1: Sender<i32>},name=tx1b]
+		]
+		[{move || ...},name=t2,tier=t2,fit=band
+			[{tx\_t2: Sender<i32>},name=tx2b]
+		]
+	]
+	\draw [->,dashed] (tx1a.east) -- (tx1b.west);
+	\draw [->,dashed] (tx2a.east) -- (tx2b.west);
+	\draw [->] (t1var.east) -- (t1.west);
+	\draw [->] (t2var.east) -- (t2.west);
+	\end{forest}
+	\end{center}
+	Канал жив, пока жив его <<single>> конец (тут "--- \texttt{rx}).
+\end{frame}
