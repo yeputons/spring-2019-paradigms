@@ -1,0 +1,143 @@
+\section{Практические грабли}
+\subsection{Простое приложение на pthread}
+
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}{Что такое pthread}
+	\begin{itemize}
+		\item Стандартный интерфейс функций для работы с потоками (POSIX Threads).
+		\item Есть реализации под Windows, Linux и другие ОС.
+		\item Стандарт при разработке программ на C.
+		\item Имена функций и типов начинаются с \t{pthread\_}.
+		\item В Linux можно получить справку, набрав \t{man <имя функции>} в консоли.
+		\item Под остальными "--- то же самое, но в гугле.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Пример кода}
+\begin{minted}{cpp}
+void* worker(void* arg) {
+    printf("Hello from thread! arg=%d\n", *(int*)arg);
+    *(int*)arg += 10;
+    return arg;
+}
+int main() {
+    pthread_t id;
+    int data = 1234;
+    assert(pthread_create(&id, NULL, worker, &data) == 0);
+    void* retval;
+    assert(pthread_join(id, &retval) == 0);
+    assert(retval == &data);
+    printf("data is %d\n", data);
+    return 0;
+}
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Упражнение: сборка кода}
+	\begin{enumerate}
+		\item Качаем решение с \href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/01-simple.cpp}{GitHub}.
+		\item \texttt{g++ 01-simple.c -o 01-simple -pthread -Wall -Wextra -Werror} или аналог в вашей IDE.
+		\item \texttt{./01-simple}
+		\item Ожидаемый вывод:
+\begin{verbatim}
+Hello from thread! arg=1234
+data is 1244
+\end{verbatim}
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}{Как живут потоки}
+	\begin{itemize}
+		\item При создании потока при помощи \t{pthread\_create} указывается функция и её аргумент "--- один указатель на что угодно.
+		\item Вернуть функция тоже может указатель на что угодно.
+		\item Поток завершается, когда функция делает \t{return} или \t{pthread\_exit}.
+		\item Указатель на поток хранится в переменной типа \t{pthread\_t}.
+		\item При создании потока он сразу начинает выполняться.
+		\item \t{pthread\_join} делает следующее:
+			\begin{enumerate}
+				\item Ждёт окончания работы потока.
+				\item Освобождает все ресурсы потока (стек).
+				\item Возвращает то, что вернула функция потока.
+			\end{enumerate}
+		\item Когда \t{main} делает \t{return 0} или вы вызываете \t{exit(0)}, умирает весь процесс со всеми потоками.
+		\item Но в \t{main} можно сделать \t{pthread\_exit}, если очень хочется, тогда процесс не умрёт, пока живы потоки.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Несколько замечаний про C/C++}
+	\begin{itemize}
+		\item На языках C и C++ лучше включить все предупреждения компилятора (warnings), в GCC это делают ключи \t{-Wall}, \t{-Wextra}.
+		\item Если вы включили предупреждения "--- их лучше сразу трактовать как ошибки (\t{-Werror}), иначе быстро научитесь их игнорировать.
+		\item Если аргумент функции не используется, то в языке C++ следует не писать его имя, например, \t{void* work(void*) \{}.
+		\item Из функции всегда надо что-то вернуть (хотя бы \t{NULL}).
+		\item \href{http://codeforces.com/blog/entry/17747}{Никогда} не начинайте название переменной с нижнего подчёркивания!
+		\item
+			\t{(void*)123} "--- \href{https://www.securecoding.cert.org/confluence/display/c/INT36-C.+Converting+a+pointer+to+integer+or+integer+to+pointer}{\textit{плохая} идея для передачи числа}.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Иллюстрация}
+	\begin{center}
+		\includegraphics[scale=0.5]{no-werror-meme.jpg}
+	\end{center}
+\end{frame}
+
+\begin{frame}[t]{Несколько замечаний про pthread}
+	Про потоки и pthread:
+	\begin{itemize}
+		\item Использовать \t{void* arg} и возвращаемое значение для передачи данных необязательно.
+		\item Вся память внутри процесса одинаково доступна всем потокам на чтение и запись.
+		\item \t{void* arg} возникает только тогда, когда надо запустить потоки на разных данных.
+		\item
+			Что произойдёт, если мы забудем \t{join} и \t{main} завершится до начала \t{worker}?
+			Предполагаем, что процесс при этом не умрёт.
+			\only<2->{Неопределённое поведение "--- \t{worker} попытается изменить переменную \t{data}, которая уже исчезла.}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Кто освобождает ресурсы?}
+	На самом деле в pthread есть два типа потоков: joinable и detached.
+
+	Joinable:
+	\begin{itemize}
+		\item Тип по умолчанию.
+		\item На таком потоке должен быть ровно один раз вызыван метод \t{pthread\_join}, который освободит ресурсы и сообщит, что поток вернул.
+		\item Если не вызвать "--- ресурсы не будут освобождены до конца программы.
+		\item Если вызвать дважды "--- второй вызов может уронить программу или вернуть неверный результат.
+	\end{itemize}
+
+	Detached:
+	\begin{itemize}
+		\item Система автоматически освободит ресурсы как только поток завершится.
+		\item Нельзя вызывать \t{pthread\_join} и получать возвращаемое значение "--- его негде хранить после окончания работы.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{В других системах}
+	\begin{itemize}
+		\item Joinable/detached также используется в Java.
+		\item В Windows (не в pthread под Windows!) другая концепция:
+			\begin{itemize}
+				\item Указатель на поток "--- сложный объект, который надо запрашивать у ОС и освобождать (как \t{FILE*}), а не просто переменная.
+				\item Ресурсы потока освобождаются, когда он завершился и на него больше нет указателей.
+				\item Нет разделения joinable/detached.
+				\item Если кто-то может спросить состояние потока "--- у него есть указатель, значит, ресурсы потока ещё не освобождены.
+			\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Упражнение}
+	\begin{enumerate}
+		\item Измените код так, чтобы \t{data} стала глобальной переменной (после этого \t{arg} не нужен).
+		\item Вызовите \t{pthread\_detach} на втором потоке после запуска.
+		\item Убедитесь, что программа упала.
+		\item Уберите вызов \t{pthread\_join} и \t{printf} из основного потока.
+		\item Убедитесь, что второй поток не всегда успевает отработать.
+		\item Добавьте вызов \t{pthread\_exit} в \t{main}.
+		\item Убедитесь, что после приложение перестало закрываться до окончания работы всех потоков.
+	\end{enumerate}
+	\href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/02-detached.cpp}{Код}
+\end{frame}

@@ -1,0 +1,216 @@
+\subsection{Взаимное исключение}
+
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}{Как избежать гонок}
+	\begin{itemize}
+		\item Можно обозначить кусок кода как \textit{критическую секцию} (critical section).
+		\item Каждую критическую секцию может выполнять максимум один поток.
+		\item
+			Если весь доступ к общим данным обозначить как критическую секцию,
+			то он станет де-факто атомарным.
+		\item С каждой критической секцией ассоцириуется \textit{блокировка} (lock).
+		\item При входе в секцию блокировку надо \textit{взять}/\textit{захватить} (acquire).
+		\item При выходе из секции блокировку надо \textit{отпустить} (unlock/release).
+		\item Другие названия блокировок: монитор (monitor), мьютекс (mutex, \textbf{mut}al \textbf{ex}clusion).
+		\item Обычно реализованы на уровне ОС и все операции с ними медленные.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Некорректный пример}
+\begin{minted}{cpp}
+int data;
+void* worker(void*) {
+    pthread_mutex_t m;
+    pthread_mutex_init(&m, NULL);
+    for (int i = 0; i < N; i++) {
+        pthread_mutex_lock(&m);
+        data++;
+        pthread_mutex_unlock(&m);
+    }
+    pthread_mutex_destroy(&m);
+    return NULL;
+}
+\end{minted}
+\href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/09-two-threads-bad-mutex.cpp}{Код}.
+\end{frame}
+
+\begin{frame}[fragile]{Корректный пример}
+\begin{minted}{cpp}
+int data;
+pthread_mutex_t m;
+void* worker(void*) {
+    for (int i = 0; i < N; i++) {
+        pthread_mutex_lock(&m);
+        data++;
+        pthread_mutex_unlock(&m);
+    }
+    return NULL;
+}
+// ...
+  pthread_mutex_init(&m, NULL);
+// ...
+  pthread_mutex_destroy(&m);
+// ...
+\end{minted}
+\end{frame}
+
+\begin{frame}{Упражнение}
+	\begin{enumerate}
+		\item Добавьте мьютекс в \href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/08-two-threads.cpp}{двойной счётчик}.
+		\item Уменьшите $N$ на несколько порядков (мьютексы сильно замедляют программу).
+		\item Убедитесь, что всегда выводится $2N$.
+		\item Добавьте мьютекс в \href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/04-writeln-race.cpp}{writeln}.
+	\end{enumerate}
+	\href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/10-two-threads-good-mutex.cpp}{Исправленный двойной счётчик},
+	\href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/11-writeln-mutex.cpp}{исправленный writeln}.
+\end{frame}
+
+\begin{frame}[fragile]{Блокировка}
+	\begin{itemize}
+		\item \t{pthread\_mutex\_lock} блокируется и ждёт, пока блокировка не станет доступна для захвата.
+		\item Есть ли проблемы в следующем псевдокоде?
+\begin{minted}{cpp}
+void thread1() {
+    m1.lock(); m2.lock();
+    // ...
+    m2.unlock(); m1.unlock();
+}
+void thread2() {
+    m2.lock(); m1.lock();
+    // ...
+    m1.unlock(); m2.unlock();
+}
+\end{minted}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Взаимная блокировка}
+	\begin{center}
+		\includegraphics{deadlock.jpg}
+	\end{center}
+	\begin{itemize}
+		\item
+			Может случиться проблема:
+			\begin{enumerate}
+				\item Поток 1 захватывает \t{m1}.
+				\item Поток 2 захватывает \t{m2}.
+				\item Поток 1 не может захватить \t{m2}.
+				\item Поток 2 не может захватить \t{m1}.
+				\item Оба потока встали в \textit{deadlock} (\textit{взаимная блокировка}).
+			\end{enumerate}
+		\item
+			Решение: всегда брать блокировки в одном и том же порядке.
+			Тогда можно доказать, что deadlock такого вида не образуется.
+		\item
+			Если ввести линейный порядок на мьютексах не получается, у вас проблема.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Мьютексы "--- не панацея}
+\begin{minted}{cpp}
+void inc() {  // Атомарна.
+    m.lock(); data++; m.unlock();
+}
+void double_inc() {  // Не атомарно.
+    inc(); inc();
+}
+void check() {
+    m.lock();
+    assert(data % 2 == 0);
+    m.unlock();
+}
+\end{minted}
+	\begin{itemize}
+		\item Код выше может упасть, даже если вызывать только \t{double\_inc}.
+		\item Мьютекс в простом случае лишь добавляет атомарности.
+		\item Две атомарные операции подряд, как и раньше, атомарную вместе не образуют.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Reentrant}
+\begin{minted}{cpp}
+void inc() {  // Атомарна.
+    m.lock(); data++; m.unlock();
+}
+void double_inc() {  // Атомарно?
+    m.lock(); inc(); inc(); m.unlock();
+}
+\end{minted}
+	\begin{itemize}
+		\item \t{double\_inc} заблокируется, так как \t{inc} попробует взять мьютекс второй раз.
+		\item Есть специальный вид мьютексов, которые позволяют захватывать себя ещё раз из того же потока, называется \textit{reentrant}.
+		\item Их обычно не используют "--- они сложнее в реализации.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Решение}
+	Вынести специальную функцию для внутреннего использования, которая предполагает, что блокировка уже взята:
+\begin{minted}{cpp}
+void inc_lock_held() { data++; }  // Приватная
+void inc() {
+    m.lock(); inc_lock_held(); m.unlock();
+}
+void double_inc() {
+    m.lock();
+    inc_lock_held(); inc_lock_held();
+    m.unlock();
+}
+\end{minted}
+	В ООП функция \t{inc\_lock\_held} обязательно была бы приватной.
+\end{frame}
+
+\begin{frame}[fragile]{Блокировка "--- ресурс}
+	Есть ли проблема?
+\begin{minted}{cpp}
+void inc_special() {
+    m.lock();
+    if (condition()) return;
+    data++;
+    m.unlock();
+}
+\end{minted}
+	\pause
+	\begin{itemize}
+		\item Есть: блокировка может быть не отпущена в случае досрочного \t{return}.
+		\item Тогда \t{m} больше никто никогда не захватит и все следующие вызовы \t{inc\_special} не смогут начаться.
+		\item Вам поможет привычка всегда освобождать взятые ресурсы (файлы, память, \textit{мьютекс}).
+		\item Или специальный синтаксический сахар вроде RAII в C++, или try-with-resources/synchronized-блоков в Java.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Синтаксический сахар}
+	Идиома \textit{RAII}:
+\begin{minted}{cpp}
+void inc_special() {
+    ScopedLock lock(m);  // Берём блокировку в конструкторе
+    if (condition()) return;
+    data++;
+}  // Освобождаем в деструкторе.
+\end{minted}
+
+	synchronized-блоки в Java (каждый получит мьютекс):
+\begin{minted}{java}
+void inc_special() {
+    synchronized {
+        if (condition()) return;
+        data++;
+    }
+}
+\end{minted}
+\end{frame}
+
+\begin{frame}{Резюме}
+	\begin{itemize}
+		\item Атомарные операции в потоках могут выполняться в любом порядке, если их не синхронизировать.
+		\item Вы обычно не знаете, что атомарно, а что нет.
+		\item \textit{Любой} доступ к общим ресурсам должен быть \textit{защищён} (guarded) блокировкой.
+		\item В частности, любая переменная, доступная из нескольких потоков, должна быть защищена \textit{ровно} одной блокировкой (почему?).
+		\item Блокировки надо брать всегда в одном и том же порядке.
+		\item Если пишете потокобезопасный объект, блокировку надо брать на самой <<верхней>> операции, которая должна быть атомарной.
+		\item Дубовый способ переделки \textit{потоконебезопасной} структуры в безопасную: создать один мьютекс и брать его на каждую операцию со структурой.
+		\item Мьютексы сильно тормозят, лучше вообще избегать общего доступа к данным (и меньше шанс набагать).
+	\end{itemize}
+\end{frame}
