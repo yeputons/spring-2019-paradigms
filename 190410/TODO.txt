@@ -1,2 +1,19 @@
 02-condvar-02-condvar.tex:114
   Нарисовать с несколькими consumer'ами и `broadcast`
+
+06-even-counter:
+  в формулировке задания: "поставьте if на чётность"
+
+два consumer: перетащить на слайды попозже
+
+слайд 78: нарисовать картинку else unlock wait
+
+слайд 80: нет скобочки q.empty()
+
+перепроверить исходники:
+  добавить отсутствующие join/destroy.
+  проверить порядок init/destroy, create/joint
+
+слайд 89: смёржить с 88; добавить мораль "не unlock/lock"
+
+10-two-threads-good-mutex.cpp: читать лучше тоже из-под mutex
