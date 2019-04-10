@@ -166,7 +166,7 @@ pthread_mutex_unlock(&m);
 
 \begin{frame}{Упражнение}
 	\begin{enumerate}
-		\item Возьмите реализацию с producer-consumer с \href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171113/sources/03-prod-cons.cpp}{GitHub}.
+		\item Возьмите реализацию с producer-consumer с \href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/14-prod-cons.cpp}{GitHub}.
 		\item Запустите и убедитесь, что на каждую введённую строчу отзывается второй поток: сначала сразу, а потом через две секунды.
 		\item Убедитесь, что если во время ожидания второго потока ввести новую строчку, то на неё второй поток тоже среагирует.
 		\item Убедитесь, что если во время ожидания ввести две новых строчки, то будет обработана только последняя.
@@ -200,7 +200,7 @@ while (true) {
 		\only<3->{
 		\item
 			Правильно сначала считать в локальную переменную, а потом скопировать в буфер.
-			\href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171113/sources/04-prod-cons-fixed.cpp}{Код}.
+			\href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/15-prod-cons-fixed.cpp}{Код}.
 		}
 	\end{itemize}
 \end{frame}
@@ -213,7 +213,7 @@ while (true) {
 		\item Условие всегда надо проверять в цикле.
 		\item
 			\t{pthread\_cond\_wait} "--- это лишь оптимизация.
-			Если её убрать, программа должна остаться корректной.
+			Если её заменить на отпускание/взятие мьютекса, программа должна остаться корректной.
 		\item
 			Никакого внутреннего состояния у условной переменной нет,
 			из-за этого она просто реализуется в ОС, но программисту
