@@ -1,0 +1,177 @@
+\subsection{Не пытайтесь повторить это дома}
+
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}[fragile]{Загадка}
+	Что произойдёт при запуске \href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/12-optimizer.cpp}{кода}?
+	Предполагаем, что запись и чтение \t{int} атомарны.
+\begin{minted}{cpp}
+int data;
+void* worker(void*) {
+    for (;;) {
+        data++;
+    }
+}
+// ...
+    while (data < 100);
+    printf("Done\n");
+// ...
+\end{minted}
+	\begin{itemize}
+		\pause\item Race condition отсутствуют.
+		\pause\item Он зависнет.
+		\pause\item И никогда не выведет \t{Done}.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Разгадка}
+	\begin{center}
+		\includegraphics[scale=0.3]{optimizer.jpg}
+	\end{center}
+	Как обычно в C/C++.
+\end{frame}
+
+\begin{frame}{Подробная разгадка}
+	\begin{itemize}
+		\item Компилятор по умолчанию ничего про потоки не знает.
+		\item Очевидно, что \t{while (data < 100);} переменную \t{data} изменить не может.
+		\item Соответственно, переменная \t{data} никак измениться не может.
+		\item Значит, \t{data < 100} всегда истинно, можно заменить на \t{true}.
+		\item Получаем бесконечный цикл.
+			\begin{center}
+				\includegraphics[scale=0.3]{win-lose.jpg}
+			\end{center}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{volatile}
+	Изменим \href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/13-volatile.cpp}{код}:
+\begin{minted}{cpp}
+volatile int data;  // Обозначили переменную volatile.
+void* worker(void*) {
+    for (;;) {
+        data++;
+    }
+}
+// ...
+    while (data < 100);
+    printf("Done\n");
+// ...
+\end{minted}
+	\begin{itemize}
+		\item \t{volatile} говорит компилятору честно сохранять/читать значение этой переменной из памяти каждый раз, когда написано.
+		\item Есть ли проблемы? \pause Пока нет.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Reordering}
+	Эквивалентны ли два куска кода?
+	\begin{tabular}{p{0.4\textwidth}p{0.4\textwidth}}
+		\centering
+\begin{minted}{cpp}
+int data, finished;
+// ...
+data = 123;
+finished = 1;
+\end{minted}
+&
+\begin{minted}{cpp}
+int data, finished;
+// ...
+finished = 1;
+data = 123;
+\end{minted}
+	\end{tabular}
+	\pause
+	\begin{itemize}
+		\item Эквивалентны. Оптимизатор тоже так считает.
+		\pause\item И может переставить местами: всё равно никто не заметит.
+		\pause\item А что, если в другом потоке было так?
+\begin{minted}{cpp}
+if (finished) {
+    printf("%d\n", data);
+}
+\end{minted}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Иллюстрация}
+	\begin{center}
+		\includegraphics[scale=0.2]{race-condition-knock-knock.jpg}
+	\end{center}
+\end{frame}
+
+\begin{frame}{Reordeing возвращается}
+	\begin{itemize}
+		\item Даже если одна переменная помечена как \t{volatile}, компилятор может изменить порядок записи/чтения.
+		\item А вот если обе "--- не может. Проблема решена? \pause
+		\item В процессоре тоже есть оптимизатор.
+		\item Он тоже может переставлять инструкции как захочет, а \t{volatile} действует только на компилятор.
+		\item Есть специальные ассемблерные инструкции (<<барьеры памяти>>), которые действуют на процессор.
+		\item Не надо сразу пытаться в этом разобраться.
+		\item \t{volatile} не предназначен для многопоточности, он нужен для других целей (memory-mapped I/O).
+		\item В любом случае, иногда один поток может встретить состояние, которое было бы невозможно получить, исполняя инструкции последовательно.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{А что же mutex?}
+	\begin{itemize}
+		\item В разных языках/библиотеках разные модели памяти (потом должны подробно рассказать про Java).
+		\item Обычно везде считается, что в следующих случаях происходит (почти) полная синхронизация памяти между двумя потоками:
+			\begin{enumerate}
+				\item $A$ взял мьютекс, который $B$ недавно отпустил (возможно, его брал ещё кто-то).
+				\item $A$ создал поток $B$.
+				\item $A$ подождал завершения потока $B$.
+			\end{enumerate}
+		\item Все нужные барьеры памяти и прочее уже вшиты внутрь мьютексов и работы с потоками.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Простой пример}
+\begin{minted}{cpp}
+// Thread 1
+started = true;
+m.lock();
+finished = true;
+m.unlock();
+// Thread 2
+m.lock();
+if (finished) {
+    assert(started);    // Верно
+}
+m.unlock();
+\end{minted}
+	Если убрать из второго потока мьютекс "--- ничего не знаем.
+\end{frame}
+
+\begin{frame}[fragile]{Сложный пример}
+\begin{minted}{cpp}
+// Thread 1
+started = true;
+m.lock(); data++; m.unlock();
+finished1 = true;
+finished2 = true;
+// Thread 2
+m.lock(); m.unlock();
+if (finished2) {
+    assert(finished1);  // Непонятно, потому что reordering
+    assert(data > 0);   // Непонятно, потому что нет(?) happens-before
+    assert(started);    // Непонятно, потому что нет(?) happens-before
+}
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Резюме}
+	\begin{itemize}
+		\item Если вы что-то не защитили мьютексом, можно огрести из-за reordering, даже если всё <<очевидно должно работать>>.
+		\item Если всё защищено мьютексом и вы ничего не предполагаете о происходящем за пределами критических секций "--- не о чем беспокоиться.
+		\item Ничего сложнее <<взяли один глобальный мьютекс перед операцией, отпустили в конце>> обычно не требуется (в том числе в дз).
+		\item Любой сколько-нибудь более сложный контроль требует понимания модели памяти.
+		\item
+			Все проблемы "--- от общих ресурсов (переменные, файлы, экран).
+			Поэтому стараются минимизировать их количество.
+		\item Нет общих ресурсов "--- нет проблем.
+	\end{itemize}
+\end{frame}

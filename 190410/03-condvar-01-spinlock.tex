@@ -1,0 +1,83 @@
+\section{Обмен сообщениями}
+\subsection{Простая реализация}
+
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}{Зачем}
+	Довольно часто потоки не совсем независимы, а хотят взаимодействовать между собой.
+
+	Классическая задача:
+	\begin{itemize}
+		\item Есть очередь задач.
+		\item Один поток генерирует данные (producer) и добавляет их в очередь.
+		\item Второй поток должен брать добавленные данные по очереди (consumer) и что-то с ними делать.
+	\end{itemize}
+	Например:
+	\begin{itemize}
+		\item Первый поток ждёт ввода с клавиатуры и кладёт считанные данные в буфер.
+		\item Второй поток выполняет введённые команды (которые могут занять долгое время).
+		\item Мы хотим уметь вводить команды, даже если предыдущая ещё выполняется.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Producer-Consumer}
+	\svgimg{prod-cons}
+\end{frame}
+
+\begin{frame}[fragile]{Потокобезопасная очередь}
+\begin{minted}{cpp}
+class ThreadsafeQueue {
+    ThreadsafeQueue() { pthread_mutex_init(&m, NULL); }
+    ~ThreadsafeQueue() { pthread_mutex_destroy(&m); }
+    void push(int x) {
+        pthread_mutex_lock(&m);
+        q.push(x);
+        pthread_mutex_unlock(&m);
+    }
+    int pop() { ... }
+    bool empty() { ... }
+private:
+    pthread_mutex_t m;
+    queue<int> q;
+};
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Первая попытка}
+	Producer:
+\begin{minted}{cpp}
+while (true) {
+    int data = read_int();
+    q.push(data);
+}
+\end{minted}
+	Consumer:
+	\pause
+\begin{minted}{cpp}
+while (true) {
+    while (q.empty()) {
+    }
+    process_data(q.pop());
+}
+\end{minted}
+\end{frame}
+
+\begin{frame}{Есть гонка}
+	\svgimg{queue-pop-race}
+\end{frame}
+
+\begin{frame}{Проблемы}
+	\begin{itemize}
+		\item Если несколько Consumer'ов, то есть race condition.
+		\item Consumer активно ждёт событие от первого и тратит процессорное время.
+		\item Даже если ничего не происходит, программа потребляет 100\% CPU.
+		\item Consumer постоянно берёт и отпускает mutex, мешая producer'у.
+		\pause
+		\item
+			А если добавить задержку в consumer (проверять только каждые $X$ мс),
+			то сильно увеличится задержка в обработке.
+		\item Без новых \textit{примитивов синхронизации} не обойтись.
+	\end{itemize}
+\end{frame}

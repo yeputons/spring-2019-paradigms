@@ -1,0 +1,52 @@
+\documentclass[utf8,xcolor=table]{beamer}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{minted}
+\usepackage{ulem}
+\usepackage{cmap}
+\usepackage{multirow}
+
+\hypersetup{colorlinks,linkcolor=blue,urlcolor=blue}
+
+\mode<presentation>{
+	\usetheme{CambridgeUS}
+}
+
+\renewcommand{\t}[1]{\ifmmode{\mathtt{#1}}\else{\texttt{#1}}\fi}
+\newcommand{\svgimg}[1]{
+  \begin{center}
+	\includegraphics[width=\textwidth,height=0.8\textheight,keepaspectratio]{#1.pdf}
+  \end{center}
+}
+
+\title[Многопоточность-1]{Многопоточность-1}
+\author{Егор Суворов}
+\institute[СПбГУ]{Курс <<Парадигмы и языки программирования>>, группа 18.Б09-пу}
+\date[10.04.2019]{Среда, 10 апреля 2019 года}
+
+\setlength{\arrayrulewidth}{1pt}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}{План занятия}
+	\tableofcontents
+\end{frame}
+
+\input{01-intro-01-why}
+\input{01-intro-02-how}
+\input{02-practice-01-simple}
+\input{02-practice-02-race}
+\input{02-practice-03-mutex}
+\input{02-practice-04-dont-try}
+\input{03-condvar-01-spinlock}
+\input{03-condvar-02-condvar}
+\input{04-debug}
+\input{05-conclusion}
+
+\end{document}

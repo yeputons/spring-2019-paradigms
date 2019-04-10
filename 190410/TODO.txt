@@ -1,0 +1,2 @@
+02-condvar-02-condvar.tex:114
+  Нарисовать с несколькими consumer'ами и `broadcast`
