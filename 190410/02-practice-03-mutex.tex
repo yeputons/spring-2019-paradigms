@@ -19,6 +19,10 @@
 	\end{itemize}
 \end{frame}
 
+\begin{frame}{Мьютекс}
+	\svgimg{mutex-good}
+\end{frame}
+
 \begin{frame}[fragile]{Некорректный пример}
 \begin{minted}{cpp}
 int data;
@@ -34,7 +38,7 @@ void* worker(void*) {
     return NULL;
 }
 \end{minted}
-\href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/09-two-threads-bad-mutex.cpp}{Код}.
+\href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/09-two-threads-bad-mutex.cpp}{Код}.
 \end{frame}
 
 \begin{frame}[fragile]{Корректный пример}
@@ -59,13 +63,13 @@ void* worker(void*) {
 
 \begin{frame}{Упражнение}
 	\begin{enumerate}
-		\item Добавьте мьютекс в \href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/08-two-threads.cpp}{двойной счётчик}.
+		\item Добавьте мьютекс в \href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/08-two-threads.cpp}{двойной счётчик}.
 		\item Уменьшите $N$ на несколько порядков (мьютексы сильно замедляют программу).
 		\item Убедитесь, что всегда выводится $2N$.
-		\item Добавьте мьютекс в \href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/04-writeln-race.cpp}{writeln}.
+		\item Добавьте мьютекс в \href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/04-writeln-race.cpp}{writeln}.
 	\end{enumerate}
-	\href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/10-two-threads-good-mutex.cpp}{Исправленный двойной счётчик},
-	\href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/11-writeln-mutex.cpp}{исправленный writeln}.
+	\href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/10-two-threads-good-mutex.cpp}{Исправленный двойной счётчик},
+	\href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/11-writeln-mutex.cpp}{исправленный writeln}.
 \end{frame}
 
 \begin{frame}[fragile]{Блокировка}
@@ -211,6 +215,6 @@ void inc_special() {
 		\item Блокировки надо брать всегда в одном и том же порядке.
 		\item Если пишете потокобезопасный объект, блокировку надо брать на самой <<верхней>> операции, которая должна быть атомарной.
 		\item Дубовый способ переделки \textit{потоконебезопасной} структуры в безопасную: создать один мьютекс и брать его на каждую операцию со структурой.
-		\item Мьютексы сильно тормозят, лучше вообще избегать общего доступа к данным (и меньше шанс набагать).
+		\item Мьютексы сильно тормозят, лучше вообще избегать общего доступа к данным (и меньше шанс набагать), привет из Rust.
 	\end{itemize}
 \end{frame}

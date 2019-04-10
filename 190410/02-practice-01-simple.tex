@@ -36,9 +36,17 @@ int main() {
 \end{minted}
 \end{frame}
 
+\begin{frame}[fragile]{Один поток}
+	\svgimg{simple-one-thread}
+\end{frame}
+
+\begin{frame}[fragile]{Много потоков}
+	\svgimg{simple-two-threads}
+\end{frame}
+
 \begin{frame}[fragile]{Упражнение: сборка кода}
 	\begin{enumerate}
-		\item Качаем решение с \href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/01-simple.cpp}{GitHub}.
+		\item Качаем решение с \href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/01-simple.cpp}{GitHub}.
 		\item \texttt{g++ 01-simple.c -o 01-simple -pthread -Wall -Wextra -Werror} или аналог в вашей IDE.
 		\item \texttt{./01-simple}
 		\item Ожидаемый вывод:
@@ -139,5 +147,5 @@ data is 1244
 		\item Добавьте вызов \t{pthread\_exit} в \t{main}.
 		\item Убедитесь, что после приложение перестало закрываться до окончания работы всех потоков.
 	\end{enumerate}
-	\href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/02-detached.cpp}{Код}
+	\href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/02-detached.cpp}{Код}
 \end{frame}

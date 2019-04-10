@@ -6,14 +6,14 @@
 
 \begin{frame}{Упражнение}
 	\begin{enumerate}
-		\item Возьмите \href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/03-writeln-single.cpp}{код}.
-		\item При желании можете скачать \href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/Makefile}{Makefile}.
+		\item Возьмите \href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/03-writeln-single.cpp}{код}.
+		\item При желании можете скачать \href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/Makefile}{Makefile}.
 		\item Убедитесь, что на экран выводится строка.
 		\item Запустите второй поток, который выводит на экран другую строку.
 		\item Найдите место, где первая строка сменяется второй.
 		\item Удивитесь.
 	\end{enumerate}
-	\href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/04-writeln-race.cpp}{Код}
+	\href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/04-writeln-race.cpp}{Код}
 \end{frame}
 
 \begin{frame}{Объяснение}
@@ -35,6 +35,14 @@
 	\end{itemize}
 \end{frame}
 
+\begin{frame}{Состояние гонки: повезло}
+	\svgimg{race-writeln-ok}
+\end{frame}
+
+\begin{frame}{Состояние гонки: не повезло}
+	\svgimg{race-writeln-bad}
+\end{frame}
+
 \begin{frame}{Упражнение}
 	\begin{enumerate}
 		\item Сделайте счётчик:
@@ -49,8 +57,8 @@
 		\item Что теперь происходит?
 	\end{enumerate}
 	Мой код:
-	\href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/05-counter.cpp}{счётчик},
-	\href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/06-even-counter.cpp}{чётный счётчик}.
+	\href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/05-counter.cpp}{счётчик},
+	\href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/06-even-counter.cpp}{чётный счётчик}.
 \end{frame}
 
 \begin{frame}{Объяснение}
@@ -84,43 +92,16 @@
 		\item Что произошло?
 	\end{enumerate}
 	Мой код:
-	\href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/07-even-counter-snapshot.cpp}{счётчик со снимками},
-	\href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171023/sources/08-two-threads.cpp}{два счётчика}.
+	\href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/07-even-counter-snapshot.cpp}{счётчик со снимками},
+	\href{https://raw.githubusercontent.com/yeputons/spring-2019-paradigms/master/190410/sources/08-two-threads.cpp}{два счётчика}.
 \end{frame}
 
-\begin{frame}{Объяснение}
-	\begin{enumerate}
-		\item На уровне железа \t{data++} происходит так:
-			\begin{itemize}
-				\item Считай значение \t{data} из памяти.
-				\item Прибавь единицу.
-				\item Положи \t{data+1} на то же место в памяти.
-			\end{itemize}
-		\item
-			Порядок операций между разными потоками произвольный.
-			\begin{tabular}{cc}
-				\centering
-				\begin{tabular}{l|c}
-					Операция & \t{data} \\ \hline
-					1: \t{read} $\to 10$ & 10 \\
-					1: \t{+1} $\to 11$ & 10 \\
-					1: \t{write(11)} & 11 \\
-					2: \t{read} $\to 11$ & 11 \\
-					2: \t{+1} $\to 12$ & 11 \\
-					2: \t{write(12)} & 12 \\
-				\end{tabular}
-				&
-				\begin{tabular}{l|c}
-					Операция & \t{data} \\ \hline
-					1: \t{read} $\to 10$ & 10 \\
-					1: \t{+1} $\to 11$ & 10 \\
-					2: \t{read} $\to 10$ & 10 \\
-					2: \t{+1} $\to 11$ & 10 \\
-					1: \t{write(11)} & 11 \\
-					2: \t{write(11)} & 11 \\
-				\end{tabular}
-			\end{tabular}
-	\end{enumerate}
+\begin{frame}[fragile]{Состояние гонки: повезло}
+	\svgimg{race-two-inc-good}
+\end{frame}
+
+\begin{frame}[fragile]{Состояние гонки: не повезло}
+	\svgimg{race-two-inc-bad}
 \end{frame}
 
 \begin{frame}{А что вообще атомарно?}
@@ -138,5 +119,10 @@
 		\item Не пытайтесь самостоятельно писать код, зависящий от атомарности.
 		\item В некоторых языках бывает \t{AtomicInteger} и похожие структуры.
 		\item За ними тоже надо аккуратно следить, обычно не используют.
+		\item Мораль из Rust:
+			\begin{itemize}
+			\item Несколько потоков, читающих одну переменную "--- окей
+			\item Если кто-то пишет в переменную, то никто другой не может её читать
+			\end{itemize}
 	\end{itemize}
 \end{frame}
