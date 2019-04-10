@@ -1,0 +1,222 @@
+\subsection{События}
+
+\begin{frame}[fragile]{Новый примитив}
+	Введём примитив \t{Event} с двумя методами:
+	\begin{itemize}
+		\item \t{e.wait()} "--- усыпляет поток.
+		\item \t{e.notify()} "--- будит уснувший поток.
+	\end{itemize}
+	\begin{tabular}{p{0.45\linewidth}p{0.45\linewidth}}
+		\centering
+\begin{minted}{cpp}
+// Producer
+while (true) {
+  int data = get_data();
+  q.push(data);
+  e.notify();
+}
+\end{minted}
+&
+\begin{minted}{cpp}
+// Consumer
+while (true) {
+  if (!q.empty()) {
+    process_data(q.pop());
+  } else {
+    e.wait();
+  }
+}
+\end{minted}
+	\end{tabular}
+	Есть ли проблемы в коде выше?
+	\pause
+	Проблемы есть.
+\end{frame}
+
+\begin{frame}{Повезло}
+	\svgimg{bad-event-ok}
+\end{frame}
+
+\begin{frame}{Не повезло}
+	\svgimg{bad-event-bad}
+\end{frame}
+
+\begin{frame}{Ну вы поняли}
+	\begin{center}
+		\includegraphics[scale=0.4]{race-condition-everywhere.jpg}
+	\end{center}
+	Что делать?
+\end{frame}
+
+\begin{frame}{Первый подход}
+	\begin{itemize}
+		\item Можно сказать, что если в момент вызова \t{e.notify()} никто не спит, то будет разбужен следующий попытающийся уснуть.
+		\item Другими словами, у \t{Event} теперь есть состояние: просигналили или нет.
+		\item \t{e.notify()} "--- устанавливает флаг <<просигналили>> и будит все потоки.
+		\item \t{e.wait()} "--- ждёт, пока флаг установят (или не ждёт, если уже установлен) и сбрасывает его.
+		\item Решает задачу producer-consumer.
+		\item Используются в Windows API.
+	\end{itemize}
+	Однако:
+	\begin{itemize}
+		\item Дополнительное состояние вносит сложность "--- за ним надо следить и добавлять инвариант.
+		\item В pthread не входят и под Linux обычно не используются.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Второй подход: добавим мьютексов?}
+	\begin{tabular}{p{0.45\linewidth}p{0.45\linewidth}}
+		\centering
+\begin{minted}{cpp}
+// Producer
+while (true) {
+  int data = get_data();
+  pthread_mutex_lock(&m);
+  q.push(data);
+  e.notify();
+  pthread_mutex_unlock(&m);
+}
+\end{minted}
+&
+\begin{minted}{cpp}
+// Consumer
+while (true) {
+  pthread_mutex_lock(&m);
+  if (!q.empty()) {
+    process_data(q.pop());
+  } else {
+    e.wait();
+  }
+  pthread_mutex_unlock(&m);
+}
+\end{minted}
+	\end{tabular}
+	Теперь race condition отсутствует.
+	\pause
+	Зато есть deadlock: producer не может ничего писать, пока consumer спит.
+\end{frame}
+
+\subsection{Условные переменные}
+
+\begin{frame}{Условные переменные}
+	\begin{itemize}
+		\item Нам нужна атомарная операция <<отпусти мьютекс и жди события>>.
+		\item Такой примитив синхронизации в pthread (и вообще много где) называется \textit{условная переменная} (conditional variable).
+		\item Смысл: условная переменная "--- это способ оповещать потоки о \textit{возможном} изменении некоторого \textit{условия}, защищённого мьютексом.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Событие наступило до ожидания}
+	\svgimg{condvar-before-wait}
+\end{frame}
+
+\begin{frame}{Событие наступило после ожидания}
+	\svgimg{condvar-after-wait}
+\end{frame}
+
+\begin{frame}{Свойства условных переменных}
+	\begin{itemize}
+		\item Ожидание пассивное, ресурсы CPU не тратятся.
+		\item На каждое условие создаётся условная переменная.
+		\item Поток, изменивший условие, может разбудить либо все ожидающие потоки (\t{broadcast}), либо один случайный (\t{signal}).
+		\item Бывают spurious wakeup "--- система иногда может разбудить ждущий поток, даже если никто не вызывал \t{signal}/\t{broadcast}.
+		\item Поэтому важно проверять условие после пробуждения (\t{while}, а не \t{if}).
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Создание}
+	Точно так же, как и мьютекс:
+\begin{minted}{cpp}
+pthread_cond_t cond;
+pthread_cond_init(&cond);
+// ...
+pthread_cond_destroy(&cond);
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Оповещение}
+\begin{minted}{cpp}
+pthread_mutex_t m;
+pthread_cond_t cond; // GUARDED_BY(m)
+bool some_condition; // GUARDED_BY(m)
+// ...
+pthread_mutex_lock(&m);
+// Следующие две строки в любом порядке.
+some_condition = true;
+pthread_cond_signal(&cond);
+pthread_mutex_unlock(&m);
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Ожидание условия}
+\begin{minted}{cpp}
+pthread_mutex_t m;
+pthread_cond_t cond; // GUARDED_BY(m)
+bool some_condition; // GUARDED_BY(m)
+// ...
+pthread_mutex_lock(&m);
+while (!some_condition) {
+    // Атомарно снимает мьютекс и начинает ожидание
+    pthread_cond_wait(&cond, &m);
+    // После выхода из cond_wait мьютекс снова захвачен.
+}
+pthread_mutex_unlock(&m);
+\end{minted}
+\end{frame}
+
+\begin{frame}{Упражнение}
+	\begin{enumerate}
+		\item Возьмите реализацию с producer-consumer с \href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171113/sources/03-prod-cons.cpp}{GitHub}.
+		\item Запустите и убедитесь, что на каждую введённую строчу отзывается второй поток: сначала сразу, а потом через две секунды.
+		\item Убедитесь, что если во время ожидания второго потока ввести новую строчку, то на неё второй поток тоже среагирует.
+		\item Убедитесь, что если во время ожидания ввести две новых строчки, то будет обработана только последняя.
+		\item Задайте все вопросы по коду; поймите, зачем нужна и что делает каждая строчка.
+		\item Есть ли проблемы в этом коде?
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}{Конечно, есть!}
+	\begin{center}
+		\includegraphics[scale=0.4]{multithreading-aliens.jpg}
+	\end{center}
+\end{frame}
+
+\begin{frame}[t,fragile]{Проблема}
+	Вот тут возникает race condition:
+\begin{minted}{cpp}
+while (true) {
+    fgets(str, sizeof str, stdin);
+    pthread_mutex_lock(&m);
+    str_available = true;
+    pthread_cond_signal(&cond);
+    pthread_mutex_unlock(&m);
+}
+\end{minted}
+	\pause
+	\begin{itemize}
+		\item \t{fgets} меняет буфер, который также читается из другого потока.
+		\item Значит, буфер должен быть защищён мьютексом на всех стадиях.
+		\item Если поменяем \t{fgets} и \t{pthread\_mutex\_lock} местами, то\only<1>{...}\only<2->{ будет deadlock: consumer не может читать данные, пока producer ждёт.}
+		\only<3->{
+		\item
+			Правильно сначала считать в локальную переменную, а потом скопировать в буфер.
+			\href{https://github.com/yeputons/fall-2017-paradigms/raw/master/171113/sources/04-prod-cons-fixed.cpp}{Код}.
+		}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Резюме}
+	\begin{itemize}
+		\item Условные переменные нужны там и только там, где поток ждёт некоторое условие.
+		\item А это условие всегда защищено ровно одним мьютексом (почему?)
+		\item Соответственно, условная переменная тоже защищена ровно одним мьютексом.
+		\item Условие всегда надо проверять в цикле.
+		\item
+			\t{pthread\_cond\_wait} "--- это лишь оптимизация.
+			Если её убрать, программа должна остаться корректной.
+		\item
+			Никакого внутреннего состояния у условной переменной нет,
+			из-за этого она просто реализуется в ОС, но программисту
+			надо самому явно формулировать условие, которого ждёт поток.
+	\end{itemize}
+\end{frame}
