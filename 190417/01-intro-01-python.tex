@@ -1,0 +1,149 @@
+\section{Функциональное программирование}
+\subsection{Примеры на Python}
+
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\subsection{Императивное программирование}
+\begin{frame}{Императивное программирование}
+	Руководствуемся следующим принципом:
+	\begin{exampleblock}{Определение}
+		Алгоритм "--- набор инструкций, описывающих порядок действий исполнителя для достижения некоторого результата
+	\end{exampleblock}
+	\begin{itemize}
+		\item В императивном стиле код программы описывает \textit{как} надо достигать результата.
+		\item Есть постоянно изменяющееся состояние программы (например, переменные).
+		\item Хорошо ложится на <<железо>>: оно действительно меняет состояние памяти.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Что такое <<действие>>?}
+    Можно работать на разных уровнях абстракции:
+	\begin{itemize}
+		\item Команда процессора: <<возьми значение из ячейки памяти с таким номером>>
+		\item Вычисление арифметического выражения
+		\item Конструкции управления \t{if}/\t{for}/\t{while}
+		\item Вызовы функций
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Функциональное программирование}
+	\begin{exampleblock}{Определение}
+		Алгоритм "--- это \textit{чистая} математическая функция от нескольких аргументов.
+	\end{exampleblock}
+	\begin{itemize}
+		\item Как решение задачи на курсе алгоритмов.
+		\item Основное свойство "--- \textit{чистота} функций; результат вычисления зависит только от аргументов функции.
+		\item Ни слова про состояние программы или порядок вычислений.
+		\item Остальные свойства выводятся из чистоты:
+			\begin{itemize}
+				\item Порядок вычислений неважен.
+				\item Состояние программы не может влиять на работу функций.
+				\item Например, функция не может читать из глобальных переменных.
+			\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Побочные эффекты}
+	\begin{itemize}
+		\item То, что происходит в функции помимо вычисления значения, называется \textit{побочным эффектом}.
+		\item Результаты всех функций зависят только от аргументов $\iff$ у функций нет побочных эффектов.
+		\item В <<идеально чистых>> языках запрещены не только функции с побочными эффектами, но любые побочные эффекты вообще.
+		\item В частности, запрещено иметь изменяемое состояние "--- переменные.
+		\item Никаких гонок данных.
+		\item Непонятно, как тогда делать ввод-вывод "--- это точно побочный эффект.
+		\item Идеально чистые языки бесполезны, все в той или иной степени <<загрязнены>>.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Задача о рюкзаке, императивное решение}
+\begin{minted}{cpp}
+int maxSumCost = 0;
+void solve(int i, int weight, int cost) {
+  maxSumCost = max(maxSumCost, cost);  // Не чистая
+  if (i == n) return;
+  solve(i + 1, weight, cost);
+  if (weight >= ws[i]) {
+    solve(i + 1, weight - ws[i], cost + cs[i]);
+  }
+}
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Задача о рюкзаке, чистая функция-1}
+\begin{minted}{cpp}
+int solve(int i, int weight, int cost) {
+  if (i == n) return cost;
+  int ans = solve(i + 1, weight, cost);
+  if (weight >= ws[i]) {
+    ans = max(ans, solve(i + 1,
+                         weight - ws[i],
+                         cost + cs[i]));
+  }
+  return ans;
+}
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Задача о рюкзаке, чистая функция-2}
+\begin{minted}{cpp}
+int solve(int i, int weight, int cost) {
+  if (i == n) return cost;
+  if (weight < ws[i]) return solve(i + 1, weight, cost);
+  return max(
+    solve(i + 1, weight, cost),
+    solve(i + 1, weight - ws[i], cost + cs[i])
+  );
+}
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Задача о рюкзаке, чистая функция-3}
+\begin{minted}{cpp}
+int solve(int i, int weight) {
+  if (i == n) return 0;
+  if (weight < ws[i]) return solve(i + 1, weight);
+  return max(
+    solve(i + 1, weight),
+    solve(i + 1, weight - ws[i]) + cs[i]
+  );
+}
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Императивная работа с массивом}
+\begin{minted}{python}
+lst = [5, 10, 15, 10, 20]
+partialSums = []
+smallPrefix = []
+s = 0
+for x in lst:
+    if x >= 10:
+        s += x
+        partialSums.append(s)
+    if x <= 10:
+        smallPrefix.append(x)
+
+for i in range(len(lst)):
+    lst[i] *= 2
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Функциональная работа с массивом}
+\begin{minted}{python}
+import itertools
+lst = [5, 10, 15, 10, 20]
+partialSums = list(itertools.accumulate(
+  # filter - "функция высшего порядка"
+  filter(lambda x: x >= 10, lst)
+))
+smallPrefix = list(
+  # takewhile- "функция высшего порядка"
+  itertools.takewhile(
+    lambda x: x <= 10, lst)
+)
+lst = [x * 2 for x in lst]
+# lst = map(lambda x: x * 2, lst)
+\end{minted}
+\end{frame}

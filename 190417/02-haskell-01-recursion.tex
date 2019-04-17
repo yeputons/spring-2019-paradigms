@@ -1,0 +1,261 @@
+\section{Интересный Haskell}
+\subsection{Рекурсия}
+
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}[t,fragile]{Упражнения на рекурсию}
+	% 02-01-rec.hs
+	\begin{tabular}{p{0.45\linewidth}p{0.45\linewidth}}
+	\centering
+	Факториал:
+\begin{minted}{haskell}
+fac 0 = 1
+fac n = n * fac (n - 1)
+\end{minted}
+	&
+	Степень двойки: \pause
+\begin{minted}{haskell}
+powerOfTwo 0 = 1
+powerOfTwo n = 2 *
+    powerOfTwo (n - 1)
+\end{minted}
+	\end{tabular}
+	\vspace{-10pt}
+
+	Числа Фибоначчи: \pause
+\begin{minted}{haskell}
+fib n = fib' 0 1 n
+fib' f1 f2 0 = f1
+fib' f1 f2 n = fib' f2 (f1 + f2) (n - 1)
+\end{minted}
+	\begin{itemize}
+		\item Функции могут содержать апостроф
+		\item Функции всегда должны начинаться с маленькой буквы.
+		\item Мы увидели \textit{pattern matching}:
+			\begin{itemize}
+				\item Вместо \t{if} пишем <<шаблон>> для аргумента функции.
+				\item Шаблонов может быть несколько, они проверяются сверху вниз.
+				\item Приближает нас к математической нотации, избавляет от if'ов.
+				\item Очень популярно в функциональных языках.
+			\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{If не нужен}
+	% 02-02-if.hs
+	% 02-03-no-if.hs
+\begin{minted}{haskell}
+-- If
+fac n = if n == 0
+        then 1
+        else n * fac (n - 1)
+-- Pattern matching
+fac 0 = 1
+fac n = n * fac (n - 1)
+-- If
+facTwo n = if n <= 1
+           then 1
+           else n * facTwo (n - 2)
+-- Guards
+facTwo n | n <= 1    = 1
+         | otherwise = n * fac (n - 2)
+\end{minted}
+\end{frame}
+
+\begin{frame}[t,fragile]{Жизнь без циклов}
+	Как теперь написать функцию \t{sum}?
+	% 02-04-sum1.hs
+\begin{minted}{haskell}
+sum' (x:xs) = x + sum' xs
+sum' _ = 0
+\end{minted}
+	\begin{itemize}
+		\item Иногда можно делать сложный pattern matching вроде \t{x:xs} (список, первый элемент которого "--- \t{x}, а хвост "--- \t{xs}).
+		\item Шаблоны проверяются сверху вниз, выбирается первый подходящий.
+		\item Вместо имени переменной можно написать \t{\_}.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Неявный инвариант}
+	Если в императивной программе есть цикл "--- то можно вынести одну итерацию этого цикла в функцию и сделать рекурсию вместо цикла:
+
+	\begin{tabular}{p{0.35\linewidth}p{0.55\linewidth}}
+		\centering
+		% 02-04-sum2.py
+		% 02-04-sum2.hs
+		Python & Haskell \\
+\begin{minted}{python}
+def sum(xs):
+    a = 0
+    for x in xs:
+        a += x
+    return a
+\end{minted}
+		&
+\begin{minted}{haskell}
+sum' xs = sum'' 0 xs
+sum'' a [] = a
+sum'' a (x:xs) = sum'' (a + x) xs
+\end{minted}
+\pause
+Или так:
+% 02-04-sum3.hs
+\begin{minted}{haskell}
+sum' xs = sum'' 0 xs
+    where
+        sum'' a [] = a
+        sum'' a (x:xs) = ...
+\end{minted}
+	\end{tabular}
+\end{frame}
+
+\begin{frame}[t, fragile]{Ещё пример}
+	% 02-05-uniq.py
+\begin{minted}{python}
+def foo(xs):
+    res = []
+    if not xs:
+        return
+    res.append(xs[0])
+    for x in xs[1:]:
+        if res[-1] != x:
+            res.append(x)
+    return res
+\end{minted}
+	Что это?
+	\pause
+	Удаление одинаковых значений, идущих подряд: \t{[10,~10,~20,~10]~->~[10,~20,~10]}
+\end{frame}
+
+\begin{frame}[t, fragile]{Упражнение}
+	\begin{itemize}
+		\item Простая версия: написать функцию \t{prod}, считающую произведение элементов в списке.
+		\item Сложная версия: напишите удаление одинаковых значений из списка.
+		\item Возьмите код на Python в качестве основы.
+		\item Преобразуйте цикл \t{for} в рекурсию. \pause
+		\item Инвариант "--- последний добавленный элемент.
+	\end{itemize}
+	\pause
+	% 02-06-uniq-imp.hs
+\begin{minted}{haskell}
+uniq [] = []
+uniq (x:xs) = x:(uniq' x xs)
+    where
+        uniq' _ [] = []
+        uniq' last (x:xs)
+            | last == x = xs'
+            | otherwise = x:xs'
+            where xs' = uniq' x xs
+\end{minted}
+\end{frame}
+
+\begin{frame}{И где золотые горы?}
+	\begin{center}
+		\includegraphics[scale=0.35]{bread-why.jpg}
+	\end{center}
+	Мы пока написали на функциональном языке программу в императивном стиле.
+	Но хотя бы работает.
+\end{frame}
+
+\begin{frame}[fragile]{Золотые горы}
+	% 02-07-uniq-func.hs
+\begin{minted}{haskell}
+uniq (x:xs) = x:(uniq (dropWhile (== x) xs))
+uniq _ = []
+\end{minted}
+	\begin{itemize}
+		\item В функциональном стиле протаскивать состояние довольно неудобно.
+		\item Это нормально, так и надо "--- всё можно написать, комбинируя функции, язык нас просто к этом \textit{легонько} подталкивает.
+		\item Язык предоставляет много функций для работы \textit{и со списками тоже}, пользуемся!
+		\item Мы снова поднялись на уровень абстракции:
+			\begin{itemize}
+				\item Мы умеем комбинировать функции.
+				\item У нас есть набор \textit{функций высшего порядка} (они принимают другие функции в качестве аргументов): \t{map}, \t{dropWhile}, \t{filter}...
+				\item Этих функций высшего порядка не слишком много, но хватает для жизни.
+			\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Играем в игру}
+	Задача: пусть есть массив $a_i$ длины $n$ и массив индексов $p_i$.
+	Мы хотим положить в $a_i$ значение $a_{p_i}$.
+	\begin{tabular}{m{0.45\linewidth}m{0.45\linewidth}}
+		\centering
+		Пример & Решение \\
+		\centering
+		$
+			\begin{array}{c|c|c|c|c|c}
+				i & 0 & 1 & 2 & 3 & 4 \\\hline
+				a_i & 10 & 11 & 10 & 12 & 9 \\
+				p_i & 2 & 0 & 0 & 4 & 4 \\
+				a_{p_i} & 10 & 10 & 10 & 9 & 9
+			\end{array}
+		$
+		&
+		% 02-08-perm.py
+\begin{minted}{python}
+for i in range(len(a)):
+    a[i] = a[p[i]]
+\end{minted}
+		\vfill
+	\end{tabular}
+	Есть ли проблемы?
+	\pause
+	\begin{itemize}
+		\item Да, потому что массив меняется в процессе.
+		\item Если $p_i < i$, то справа может получиться неверное значение.
+		\item В примере нам повезло, потому что $a_{p_2}=a_0=a_{p_0}=a_2$.
+		\item Другой классический пример: merge sort.
+	\end{itemize}
+	Мораль: наличие состояния может не только быть неочевидно и вредить, но только на каких-то примерах.
+\end{frame}
+
+\begin{frame}[fragile]{Функциональное решение}
+	\begin{itemize}
+		\item Как ни странно, есть оператор получения элемента списка по номеру:
+\begin{minted}{haskell}
+[10, 11, 12, 13, 14] !! 2  -- 12
+\end{minted}
+		\item Получаем решение:
+\begin{minted}{haskell}
+permute a p = map (a !!) p
+\end{minted}
+		\item \textbf{Одна} строка.
+		\item Но для чтения надо знать, что такое \t{map}
+		\item Также надо знать частичное применение оператора \t{!!}.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Резюме}
+	\begin{itemize}
+		\item Программа на функциональных языках представляет собой комбинацию каких-то стандартных функций в нужном порядке.
+		\item Обычно читается хорошо, если знать названия этих функций.
+		\item Называется очень похоже в разных языках.
+		\item Код на функциональных языках получается довольно короткий и плотный.
+		\item Написать нечитаемо тоже можно:
+\begin{minted}{haskell}
+filter (\x -> 1 == sum (map (
+    \y -> 1 - min 1 (abs (x - y))) xs)) xs
+\end{minted}
+		\item Не забываем про декларативный list comprehension и введение вспомогательных функций при помощи \t{where}!
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Приятные бонусы}
+	\begin{itemize}
+		\item Язык заставляет вас понимать инварианты.
+		\item Практически не используются ветвления и циклы.
+		\item Проще доказывать корректность.
+		\item Сложнее допустить скрытый баг.
+		\item Активно используются абстракции, в том числе из математики (<<моноид>> легко может всплыть).
+		\item ФП легко встраивается в императивные языки и получаем лучшее двух миров.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\begin{center}
+		\includegraphics[scale=0.3]{twispicord-haskell.png}
+	\end{center}
+\end{frame}

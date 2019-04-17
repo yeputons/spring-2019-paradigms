@@ -1,0 +1,10 @@
+sum [1,2,3,4]
+map (\x -> x^2) [1,2,3,4]  -- Lambda (letter looks like \)
+(\x y -> x + y) 1 2        -- Lambda with two arguments
+map (^2) [1,2,3,4]         -- Partially applied operator
+map (*10) [1,2,3,4]        -- Similar
+map (10*) [1,2,3,4]        -- From other side
+map (10-) [1,2,3,4]        -- Subtraction
+map (-10) [1,2,3,4]        -- Damn you, unary minus!
+map ((-)10) [1,2,3,4]      -- Still does not work, because reasons
+map ((flip (-)) 10) [1,2,3,4]

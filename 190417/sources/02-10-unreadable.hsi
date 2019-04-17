@@ -1,0 +1,2 @@
+uniqOnly xs = filter (\x -> 1 == sum (map (\y -> 1 - min 1 (abs (x - y))) xs)) xs
+uniqOnly [1,2,3,4,3,5,1]

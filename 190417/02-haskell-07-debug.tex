@@ -1,0 +1,52 @@
+\subsection{Отладка}
+
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}[fragile]{Как отлаживать}
+	\begin{itemize}
+		\item Ваш лучший друг "--- чтение кода, выписывание типов, тестирование.
+		\item Haskell обычно выдаёт точный символ, в котором произошла ошибка. Там и надо смотреть.
+		\item Начинать лучше с самой верхней ошибки.
+		\item Можно закомментировать кусок кода, а у оставшегося явно написать нужный тип:
+\begin{minted}{haskell}
+map' :: (a -> b) -> [a] -> [b]
+map' f a b = f a  -- Ошибка компиляции
+\end{minted}
+		\item Проверяйте код при помощи \href{https://hackage.haskell.org/package/hlint}{hlint}.
+		\item Он заодно проверяет соответствие некоторому стилю.
+		\item Не все рекомендации hlint жизненно необходимо выполнять, так как единого стиля нет.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Trace}
+\begin{minted}{haskell}
+import Debug.Trace
+-- traceShow :: Show a => a -> b -> b
+sum' xs = sum'' 0 xs
+    where
+        sum'' a [] = traceShow (a, []::[Int]) a
+        sum'' a (x:xs) = traceShow (a, x:xs)
+                         (sum'' (a + x) xs)
+\end{minted}
+	\begin{itemize}
+		\item Использовать только для отладки
+		\item У \t{traceShow} два параметра "--- один она печатает, второй возвращает
+		\item \t{traceShow} нарушает чистоту
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{HSpec}
+	Можно и нужно писать тесты для функций:
+\begin{minted}{haskell}
+import Test.Hspec  -- cabal install hspec
+main = hspec $ do
+  describe "length function" $ do
+    it "works on empty list" $ do
+      (length []) `shouldBe` 0
+    it "works on single-item list" $ do
+      (length [10]) `shouldBe` 1
+      (length ["foo"]) `shouldBe` 1
+\end{minted}
+\end{frame}

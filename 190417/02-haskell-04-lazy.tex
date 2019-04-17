@@ -1,0 +1,137 @@
+\subsection{Ленивые вычисления}
+
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}[fragile]{Идея}
+	\begin{itemize}
+		\item В классических языках аргументы сначала вычисляются, потом передаются функции: в вызове \t{foo(bar())} сначала вычислится \t{bar()}, а результат передадут в \t{foo()}.
+		\item В Haskell наоборот: если функции неважно, что именно ей передали в качестве аргумента "--- это нечто не будет вычислено.
+		\item Другими словами, вычисления производят только от плохой жизни: если по-другому никак.
+		\item Например, если надо аргумент сравнить с шаблоном.
+		\item В функции \t{fst} второй аргумент вычисляться никогда не будет:
+\begin{minted}{haskell}
+fst x y = x
+\end{minted}
+		\item А в функции \t{if'} будет вычислен только нужный аргумент:
+\begin{minted}{haskell}
+if' True  x _ = x
+if' False _ y = y
+\end{minted}
+		\item Приходится тащить вместо невычисленного выражения инструкцию, как его получить.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Бесконечные структуры}
+	\begin{itemize}
+		\item Напоминание: \t{[1, 2, 3]} "--- это сахар для \t{1:2:3:[]}.
+		\item Попробуем завести бесконечный список из единиц:
+\begin{minted}{haskell}
+ones = 1:1:1:1:1:1:...
+\end{minted}
+		\item Так как бесконечную строчку написать не можем, придётся заметить рекурсию:
+\begin{minted}{haskell}
+ones = 1:ones
+\end{minted}
+		\item Этого уже хватит для вычисления, попробуйте \t{take 10 ones}.
+		\item Как работает: хвост списка вычисляется только тогда, когда он реально нужен.
+		\item Поэтому если никто не залез дальше второго элемента, то третий и последующие не будут вычислены, а будет просто храниться, как их можно в случае чего получить.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Подробный пример}
+\begin{minted}{haskell}
+take 0 _ = []
+take n (x:xs) = x:(take (n - 1) xs)
+ones = 1:ones
+take 3 ones = take 3 (1:ones) = 1:(take (3-1) ones)
+take 2 ones = take 2 (1:ones) = 1:(take (2-1) ones)
+take 1 ones = take 1 (1:ones) = 1:(take (1-1) ones)
+take 0 ones = []
+take 3 ones = 1:1:1:[] = [1, 1, 1]
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Пример похитрее}
+\begin{minted}{haskell}
+iota n = n:(iota (n + 1))
+take 3 (iota 5) = take 3 (5:iota 6) =
+5:(take 2 (iota 6)) = 5:(take 2 (6:iota 7)) =
+5:6:(take 1 (iota 7)) = 5:6:(take 1 (7:iota 8)) = 
+5:6:7:(take 0 (iota 8)) = 5:6:7:[]
+iota n = [n, n + 1, n + 2, ...]
+\end{minted}
+	Практически так реализован синтаксический сахар \t{[5..]}.
+\end{frame}
+
+\begin{frame}[fragile]{Числа Фибоначчи}
+	Составляем уравнение на список из чисел Фибоначчи:
+\begin{minted}{haskell}
+fib   = [1, 1, 2, 3, 5, 8, ...]
+0:fib = [0, 1, 1, 2, 3, 5, 8, ...]
+zipWith (+) fib (0:fib) = 
+        [1, 2, 3, 5, 8, 13, ...]
+1:zipWith (+) fib (0:fib) =
+        [1, 1, 2, 3, 5, 8, ...]
+fib = 1:zipWith (+) fib (0:fib)  -- Определение в Haskell
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Вычисление Фибоначчи}
+\begin{minted}{haskell}
+fib = 1:zipWith (+) fib (0:fib)  -- Определение в Haskell
+\end{minted}
+	\begin{itemize}
+		\item Изначально знаем только \t{fib !! 0}.
+		\item Когда надо вычислить \t{fib !! 1}, надо вычислить нулевой элемент от \t{zipWith}.
+		\item А для этого надо знать нулевые элементы от \t{fib} и \t{0:fib}, оба знаем.
+		\item Значит, их сумма и есть \t{fib !! 1}.
+		\item Когда потребуется вычислить \t{fib !! 2}, надо будет вычислить первый элемент от \t{zipWith}.
+		\item Для этого придётся раскрыть \t{fib} дважды (как в предыдущих пунктах), а \t{0:fib} "--- один раз.
+		\item Раскрыть получится "--- это элементы мы уже считали. Значит, посчитаем их сумму и \t{fib !! 2}.
+		\item И так до бесконечности.
+		\item Время работы и память неизвестны :)
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Особенности бесконечных списков}
+	\begin{itemize}
+		\item У них нет конца.
+		\item Если ваша функция пытается дойти до конца списка "--- у неё проблемы:
+\begin{minted}{haskell}
+getFirstTen xs = take (min 10 (length xs)) xs
+length xs  -- Не работает с бесконечными списками.
+\end{minted}
+		\item Из-за ленивости операции над бесконечными списками реальны:
+\begin{minted}{haskell}
+take 0 _      = []  -- Тут второй аргумент не вычисляется
+take n (x:xs) = x:(take (n - 1) xs)
+\end{minted}
+		\item Или даже так:
+\begin{minted}{haskell}
+any' (True :_)  = True
+any' (_    :xs) = any' xs
+\end{minted}
+		\item Функции в домашнем задании должны корректно обрабаывать те бесконечные списки, на которых поведение определено.
+		\item Надо писать аккуратно.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Упражнение}
+	\begin{itemize}
+		\item Напишите функцию \t{concat}, который приписывает один список к другому.
+		\item Работает в точности как оператор \t{(++)}.
+		\item Когда осмысленно получать на вход бесконечный список?
+	\end{itemize}
+	\pause
+\begin{minted}{haskell}
+concat (x:xs) ys = x:(concat xs ys)
+concat _      ys = ys
+\end{minted}
+	\begin{itemize}
+		\item Если получаем бесконечный список как первый аргумент "--- второй не используется.
+		\item Если получаем бесконечный список как второй аргумент "--- он дописывается в конец первого.
+		\item В Haskell оператор \t{(++)} действительно работает за линию.
+	\end{itemize}
+\end{frame}
