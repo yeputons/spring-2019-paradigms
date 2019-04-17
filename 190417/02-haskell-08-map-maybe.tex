@@ -1,0 +1,44 @@
+\subsection{Map, Maybe}
+
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}[t,fragile]{Словари и Maybe}
+\begin{minted}{haskell}
+import qualified Data.Map.Strict as Map
+
+m = Map.fromList [(1, "a"), (2, "b")]
+Map.lookup 1 m  -- Just "a"
+Map.lookup 2 m  -- Just "b"
+Map.lookup 3 m  -- Nothing
+
+:t lookup  -- Ord k => k -> Map k a -> Maybe a
+\end{minted}
+\end{frame}
+
+\begin{frame}[t,fragile]{Обновление словаря}
+	Можно делать pattern matching в середине кода:
+\begin{minted}{haskell}
+increaseValue m k =
+    case Map.lookup k m of
+    Nothing -> Map.insert k 1 m
+    Just v -> Map.insert k (v + 1) m
+\end{minted}
+\pause
+\begin{minted}{haskell}
+import Data.Maybe
+increaseValue m k = (
+    Map.insert
+        k
+        (1 + (fromMaybe (0::Integer) 
+              (Map.lookup k m)))
+        m
+    )
+\end{minted}
+\pause
+\begin{minted}{haskell}
+increaseValue m k =
+    Map.insertWith (+1) k 1 m
+\end{minted}
+\end{frame}
