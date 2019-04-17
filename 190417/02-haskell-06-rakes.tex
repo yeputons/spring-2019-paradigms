@@ -62,16 +62,40 @@ addTenToAll = map f
 	\end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Композиция функций}
+\begin{frame}[fragile]{Вызов функций}
+	Доллар "--- оператор вызова функций без скобок:
+\begin{minted}{haskell}
+(\$) :: (a -> b) -> a -> b
+(*2) (2 + 2)
+(*2) \$ 2 + 2
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Композиция функций-1}
 	Точка "--- оператор композиции функций:
 \begin{minted}{haskell}
 (.) :: (b -> c) -> (a -> b) -> (a -> c)
--- Приоритет низкий
+-- Приоритет низкий, выполняется после применения функций:
 ((+5) . (*3)) 10
 \end{minted}
 	Читать надо справа налево:
 \begin{minted}{haskell}
-(concat . map words . lines) "1 2\n10 11\n" 
+(concat . map words . lines) "1 2\n10 11\n"
+\end{minted}
+	Композиции функций в каком-то смысле лучше, чем свои вспомогательные функции или явные вызовы.
+\end{frame}
+
+\begin{frame}[fragile]{Композиция функций-2}
+	В пакете \t{Control.Arrow} есть оператор \t{>>>} для композиции функций (и не только):
+\begin{minted}{haskell}
+-- Упрощённый тип
+(>>>) :: (a -> b) -> (b -> c) -> (a -> c)
+-- Приоритет низкий
+(+10) >>> (*2) >>> (+3) \$ 100
+\end{minted}
+	Читать надо слева направо:
+\begin{minted}{haskell}
+(lines >>> map words >>> concat) "1 2\n10 11\n"
 \end{minted}
 	Композиции функций в каком-то смысле лучше, чем свои вспомогательные функции или явные вызовы.
 \end{frame}
