@@ -1,0 +1,52 @@
+\subsection{Мемоизация}
+
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}[t,fragile]{Ленивые числа Фибоначчи}
+\begin{minted}{haskell}
+fib 0 = 0
+fib 1 = 1
+fib n = fib (n - 2) + fib (n - 1)
+\end{minted}
+	\t{fib 100} работает бесконечно долго.
+	Несмотря на то, что \t{fib 10} можно запомнить,
+	Haskell не запоминает вообще все вычисления функций в программе
+	(а программа "--- это одно большое вычисление).
+
+	Можно обхитрить ленивыми списками:
+\begin{minted}{haskell}
+fibs = map fib' [0..]
+    where
+        fib' 0 = 0
+        fib' 1 = 1
+        fib' n = fibs !! (n - 1) + fibs !! (n - 2)
+\end{minted}
+	Теперь у нас есть одно ленивое значение (\t{fibs}), которое Haskell
+	постоянно помнит.
+\end{frame}
+
+\begin{frame}[t,fragile]{Сокращаем код}
+	Можно записать даже вот так:
+\begin{minted}{haskell}
+fib = (map fib' [0..] !!)
+    where
+        fib' 0 = 0
+        fib' 1 = 1
+        fib' n = fib (n - 1) + fib (n - 2)
+\end{minted}
+
+	А вот так уже не катит:
+\begin{minted}{haskell}
+fib n = map fib' [0..] !! n
+    where
+       ...
+\end{minted}
+	
+	Вроде бы\footnote{\href{https://stackoverflow.com/a/3951092/767632}{stackoverflow.com/a/3951092/767632}}
+	Haskell вычисляет выражение не больше одного раза \textit{внутри одного вызова лямбда-функции}.
+\begin{minted}{haskell}
+fib = \n -> map fib' [0..] !! n
+\end{minted}
+\end{frame}
