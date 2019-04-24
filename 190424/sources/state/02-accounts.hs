@@ -17,6 +17,6 @@ processTransaction (Transaction {from=from, to=to, amount=amount}) accounts = le
     accounts'' = increaseBalance to amount accounts' in
     accounts''
 
-processTransactions ts accounts = foldr processTransaction accounts ts
+processTransactions ts accounts = foldl (flip processTransaction) accounts ts
 
 resultAccounts = processTransactions transactions initialAccounts
