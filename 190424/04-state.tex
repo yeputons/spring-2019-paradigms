@@ -1,0 +1,60 @@
+\section{Работа с состоянием}
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}[t,fragile]{Общая идея}
+	Функция получает на вход состояние, а возвращает новое.
+
+\begin{minted}{haskell}
+insertWith :: Ord k =>
+              (a -> a -> a) -> k -> a ->
+              Map k a -> Map k a
+\end{minted}
+
+	Обычно состояние делают последним аргументом, тогда хорошо
+	работает частичное применение и композиция:
+\begin{minted}{Haskell}
+insertWith (+) "foo" 1 >>> insertWith (+) "bar" 2
+\end{minted}
+
+	Демо!
+\end{frame}
+
+\begin{frame}[t,fragile]{Возврат значения и изменение состояния}
+	Хотим <<откусить>> из начала строки число:
+\begin{minted}{haskell}
+import Data.Char
+
+readInt :: String -> (Int, String)
+readInt s =
+    let (h, t) = span isDigit s in
+    (read h, t)
+\end{minted}
+
+	Можно обобщить:
+\begin{minted}{haskell}
+type StateString a = String -> (a, String)
+readInt :: StateString Int
+readFloat :: StateString Float
+\end{minted}
+	Дальше можно навернуть ещё классов типов (вплоть до Monad)
+	и получить синтаксический сахар (do-нотация)
+\end{frame}
+
+\begin{frame}[t,fragile]{Общая идея}
+\begin{minted}{haskell}
+getLine :: RealWorld -> (String, RealWorld)
+data IO a = RealWorld -> (a, RealWorld)
+
+getLine :: IO String
+\end{minted}
+	\t{RealWorld} никогда не используется в отрыве от \t{IO}.
+	Вытащить значение из \t{IO} нельзя, иначе потеряется связь с миром.
+
+	Но есть комбинаторы:
+\begin{minted}{haskell}
+return :: a -> IO a
+(>>=) :: IO a -> (a -> IO b) -> IO b
+\end{minted}
+\end{frame}
