@@ -1,0 +1,6 @@
+a = BankCard "1234 5678 9012 3456"
+b = Cash
+c = Qiwi "+7 812 000 00 00"
+to_string a
+to_string b
+to_string c

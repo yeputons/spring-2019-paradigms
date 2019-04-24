@@ -1,0 +1,5 @@
+isA a -- True
+isA b -- True
+isA c -- False
+a == b  -- ошибка компиляции?
+a == c  -- ошибка компиляции?

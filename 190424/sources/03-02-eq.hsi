@@ -1,0 +1,5 @@
+a == b  -- True
+a == c  -- False
+b == c  -- False
+Empty == Empty           -- True
+Empty /= (Cons 1 Empty)  -- True, /= тоже работает

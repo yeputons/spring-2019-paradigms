@@ -1,0 +1,87 @@
+\section{Классы типов}
+\subsection{Что и зачем}
+
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}[fragile]{Pattern Matching и \t{==}}
+\begin{minted}{haskell}
+data IntList = Empty | Cons Int IntList deriving Show
+a = Cons 1 (Cons 2 Empty)
+b = Cons 1 (Cons 2 Empty)
+c = Cons 1 (Cons 3 Empty)
+
+isA :: IntList -> Bool
+isA (Cons 1 (Cons 2 Empty)) = True
+isA _                       = False
+
+isA a -- True
+isA b -- True
+isA c -- False
+a == b  -- ошибка компиляции?
+a == c  -- ошибка компиляции?
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Eq}
+	\begin{itemize}
+		\item Pattern Matching "--- конструкция на уровне языка.
+		\item \t{==} "--- просто некоторая функция с таким названием.
+		\item В C++ мы бы написали перегрузку функции/оператора.
+		\item В Haskell пишем так:
+\begin{minted}{haskell}
+instance Eq IntList where
+  Empty       == Empty       = True
+  (Cons x xs) == (Cons y ys) = (x == y) && (xs == ys)
+  _           == _           = False
+
+a == b  -- True
+a == c  -- False
+b == c  -- False
+Empty == Empty           -- True
+Empty /= (Cons 1 Empty)  -- True, /= тоже работает
+\end{minted}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{class Eq}
+	\begin{itemize}
+		\item \t{Eq} "--- это \textit{класс типов}, который описывает, что к типам можно применять определённые функции:
+\begin{minted}{haskell}
+class Eq a where
+  (==) :: a -> a -> Bool
+  (/=) :: a -> a -> Bool
+\end{minted}
+		\item Говорим, что тип \t{a} лежит в классе \t{Eq} тогда и только тогда, когда для него есть функции \t{(==)} и \t{(/=)}
+		\item Класс типов "--- это такой <<интерфейс>> для типов.
+		\item Некоторые функции требуют, чтобы параметры были в определённых классах:
+\begin{minted}{haskell}
+lookup :: Eq a => a -> [(a, b)] -> Maybe b
+\end{minted}
+		\item Слово \t{instance} на предыдущем слайде добавляло \t{IntList} в класс \t{Eq}.
+		\item Не путать с классами объектов из ООП!
+	\end{itemize}
+\end{frame}
+
+\subsection{Для параметризованных типов}
+\begin{frame}[fragile]{Класс Eq для списков}
+	\begin{itemize}
+		\item Пусть есть свой класс для списков:
+\begin{minted}{haskell}
+data List a = Empty | Cons a (List a)
+\end{minted}
+		\item Разумно считать, что списки равны, если равны элементы:
+\begin{minted}{haskell}
+instance Eq (List a) where
+  Empty       == Empty       = True
+  (Cons x xs) == (Cons y ys) = (x == y) && (xs == ys)
+  _ == _                     = False
+\end{minted}
+		\item Не скомпилируется, потому что элементы произвольного типа \t{a} нельзя сранивать.
+		\item Надо добавить \textit{контекст} "--- сказать, что списки можно сравнивать только если можно сранивать элементы:
+\begin{minted}{haskell}
+instance Eq a => Eq (List a) where
+\end{minted}
+	\end{itemize}
+\end{frame}

@@ -1,0 +1,129 @@
+\subsection{Примеры типов-сумм}
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}[fragile]{CharOrNotFound}
+	Поиск элемента по номеру:
+\begin{minted}{haskell}
+data CharOrNotFound = NotFound | Found Char deriving Show
+
+getItem :: [Char] -> Int -> CharOrNotFound
+getItem (x:_ ) 0         = Found x
+getItem (x:xs) n | n > 0 = getItem xs (n - 1)
+getItem _      _         = NotFound
+\end{minted}
+	\begin{itemize}
+		\item Не требуются <<магические значения>> для ситуации <<элемент не найден>>.
+		\item Компилятор проверяют, что мы всегда обрабатываем оба случая (\t{ghci~-W~file.hs}).
+		\item По типу функции сразу понятно, что она может вернуть.
+		\item Нет исключений; функции чистые.
+	\end{itemize}	
+\end{frame}
+
+
+\begin{frame}[fragile]{Maybe}
+	Можно обобщить до \textit{параметризованного типа}:
+\begin{minted}{haskell}
+data GetResult a = NotFound | Found a deriving Show
+
+getItem :: [a] -> Int -> GetResult a
+getItem (x:_ ) 0         = Found x
+getItem (x:xs) n | n > 0 = getItem xs (n - 1)
+getItem _ _              = NotFound
+\end{minted}
+% Показать :t getItem, :t getItem "123" 1
+	\begin{itemize}
+		\item \t{GetResult} "--- это не тип, это \textit{конструктор типа}.
+		\item \t{a} "--- единственный параметр этого конструктора.
+		\item А вот \t{GetResult Char} "--- уже конкретный тип:
+\begin{minted}{haskell}
+data GetResult Char = NotFound | Found Char
+\end{minted}
+		\item В Haskell такой тип называется \t{Maybe}.
+		\item А в Java есть generic-тип (\t{Optional<>}).
+		\item На самом деле \t{[Int]} "--- это сахар для \t{[] Int}.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[t,fragile]{Упражнение}
+	\begin{itemize}
+		\item Напишите тип для функции \t{getItem}, если бы она использовала \t{Maybe}:
+\begin{minted}{haskell}
+-- Уже объявлен в языке, писать не надо.
+data Maybe a = Nothing | Just a
+
+getItem :: [a] -> Int -> ???
+\end{minted}
+		\item Напишите функцию \t{getItem}.
+		\item Удалите явное указание типа, проверьте, какой тип вывелcя автоматически (\t{:t getItem} в GHCI).
+	\end{itemize}
+	\pause
+\begin{minted}{haskell}
+getItem :: [a] -> Int -> Maybe a
+getItem (x:_)  0         = Just x
+getItem (x:xs) n | n > 0 = getItem xs (n - 1)
+getItem _ _              = Nothing
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Двоичная куча}
+\begin{minted}{haskell}
+data Heap = Nil | Node Int Heap Heap deriving Show
+
+Node 1 (Node 2 (Node 5 (Node 6 Nil Nil) Nil)
+               (Node 4 Nil Nil))
+       (Node 3 Nil Nil)
+\end{minted}
+	\begin{center}
+		\begin{dot2tex}[scale=0.5,options=-tmath]
+			graph G {
+			    1 {rank=same 2 3} {rank=same 5 4} { rank=same 6 x }
+			    1 -- {2 3};
+			    2 -- {5 4};
+			    5 -- 6;
+			    5 -- x [style=invis];
+			    x [style=invis];
+			}
+		\end{dot2tex}
+	\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Односвязные списки}
+\begin{minted}{haskell}
+data List a = Empty | Cons a (List a) deriving Show
+
+head' (Cons x _ ) = x
+tail' (Cons _ xs) = xs
+\end{minted}
+	\begin{itemize}
+		\item Выше написано почти определение встроенного списка.
+		\item \t{[]} "--- это сахар для конструктора \t{Empty}.
+		\item \t{:} "--- это сахар для конструктора \t{Cons}.
+		\item Конкретно в Haskell любые структуры бывают бесконечными из-за ленивости, не только списки.
+		\item Например, бесконечное двоичное дерево имеет право на жизнь.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Промежуточные итоги}
+	\begin{itemize}
+		\item
+			Под <<алгебраическими типами данных>> обычно подразумевают поддержку типов-сумм вместе с типами-произведениями \textit{на уровне языка}.
+			Такая поддержка даёт:
+			\begin{enumerate}
+				\item Более наглядные типы.
+				\item Невозможность обратиться к данным из другого <<случая>>.
+				\item Pattern matching и сильное упрощение кода.
+				\item Предупреждения компилятора о нерассмотренных случаях (ключ \t{-W} для GHC/GHCI).
+			\end{enumerate}
+		\item Добавлять случаи в тип-сумму обычно после объявления нельзя.
+		\item В языках без типов-сумм, но с ООП, обычно используется:
+			\begin{itemize}
+				\item Наследование от общего предка вместо типов-сумм.
+				\item Visitor вместо pattern mactching.
+			\end{itemize}
+		\item Типы-суммы очень часто возникают при работе с AST.
+		\item В Haskell любой пользовательский тип является типом-суммой (возможно, из одного слагаемого).
+		\item В Haskell можно параметризовать пользовательские типы.
+	\end{itemize}
+\end{frame}

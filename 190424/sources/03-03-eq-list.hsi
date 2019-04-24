@@ -1,0 +1,6 @@
+Empty == Empty                   -- True
+Empty == Cons "x" Empty          -- False
+Cons "x" Empty == Cons "x" Empty -- True
+Cons "x" Empty == Cons "y" Empty -- False
+Cons "x" Empty == Cons "x" (Cons "z" Empty) -- False
+Cons "x" (Cons "z" Empty) == Cons "x" (Cons "z" Empty) -- True

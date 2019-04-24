@@ -1,0 +1,83 @@
+\section{Алгебраические типы данных}
+\subsection{Откуда берётся тип-сумма}
+
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}{Упражнение}
+	\begin{itemize}
+		\item Пусть у интернет-магазина есть три способа оплаты:
+			\begin{enumerate}
+				\item Банковской картой, нужно знать её данные.
+				\item Наличными при получении, ничего дополнительно знать не нужно.
+				\item Выставление счёта на QIWI-кошелёк, нужно знать номер телефона.
+			\end{enumerate}
+		\item Требуется создать тип данных <<способ оплаты>>, который можно хранить и обрабатывать.
+		\item Иногда требуется преобразовывать способ оплаты в строку.
+		\item Иногда требуется понимать, надо ли что-то делать с сервере для проведения оплаты (если да "--- положить в очередь).
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Упражнение (C-подход)}
+\begin{minted}{cpp}
+enum PaymentMethodType { CARD, CASH, QIWI_BILL };
+struct PaymentMethod {
+  PaymentMethodType type;
+  CardInfo card_info;
+  char phone[20];
+};
+\end{minted}
+	\begin{itemize}
+		\item Надо везде явно смотреть на поле \t{type} и городить if'ы.
+		\item Для обработки пишем функции вроде \t{to\_string}, которые разбирают случаи.
+		\item Можем случайно обратиться к \t{card\_info}, если не проверим способ оплаты.
+		\item Храним больше байт, чем реально надо (можно \t{union}, но там есть свои проблемы).
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Упражнение (ООП-подход)}
+	\begin{itemize}
+		\item Вводим интерфейс \t{PaymentMethod}, а сами методы делаем подклассами.
+		\item Общие функции вроде \t{to\_string} вносим в интерфейс.
+		\item Специфичные функции либо руками разбирают случаи, либо используют Visitor.
+		\item Так обычно и делают.
+		\item Можно добавлять как новые классы, так и новые операции с объектами.
+	\end{itemize}
+\end{frame}
+
+\subsection{Что такое тип-сумма}
+\begin{frame}[fragile]{Тип-сумма}
+	\begin{itemize}
+		\item Можно ввести \textit{тип-сумму}: множество его допустимых значений равно \textit{дизъюнктному объединению}\footnote{объединение попарно непересекающихся множеств} допустимых значений составных частей.
+		\item Чтобы обобщить до суммы произвольных типов, можно каждому значению составной части добавить <<тэг>>.
+		\item Пример: тип <<способ оплаты>>:
+\begin{minted}{haskell}
+data PaymentMethod = BankCard String | Cash | Qiwi String
+a = BankCard "1234 5678 9012 3456"
+b = Cash
+c = Qiwi "+7 812 000 00 00"
+\end{minted}
+		\item Обычно встречается в функциональных языках.
+		\item Именно его наличие обычно подразумевают под <<наличием алгебраических типов данных>>.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Тип-сумма: подробности}
+\begin{minted}{haskell}
+data PaymentMethod = BankCard String | Cash | Qiwi String
+\end{minted}
+	\begin{itemize}
+		\item \t{PaymentMethod} называется \textit{конструктором типа}.
+		\item \t{BankCard}, \t{Cash}, \t{Qiwi} называются <<конструкторами данных>>, являются теми самыми <<тэгами>>.
+		\item Не путать с конструкторами в ООП!
+		\item И конструктор типа, и конструктор данных долнжы начинаться с большой буквы.
+		\item Работает с pattern matching:
+\begin{minted}{haskell}
+to_string (BankCard num) = "BankCard " ++ num
+to_string Cash           = "Cash"
+to_string (Qiwi phone)   = "Qiwi " ++ phone
+\end{minted}
+		\item Можно дописать в конец строки с \t{data} слова \t{deriving Show}, чтобы GHCI мог выводить значения типа \t{PaymentMethod}.
+	\end{itemize}
+\end{frame}

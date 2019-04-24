@@ -1,0 +1,8 @@
+graph G {
+    1 {rank=same 2 3} {rank=same 5 4} { rank=same 6 x }
+    1 -- {2 3};
+    2 -- {5 4};
+    5 -- 6;
+    5 -- x [style=invis];
+    x [style=invis];
+}

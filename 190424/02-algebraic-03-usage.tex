@@ -1,0 +1,43 @@
+\subsection{Использование типов-сумм}
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}[t,fragile]{Хранение URL}
+	URL-адреса бывают:
+	\begin{itemize}
+		\item Относительные: \t{../images/facepalm.jpg}.
+		\item Абсолютные, бывают:
+			\begin{itemize}
+				\item На том же домене: \t{sewiki/index.php}.
+				\item На другом домене, причём:
+					\begin{itemize}
+						\item Та же схема (протокол): \t{google.com/humans.txt}
+	                    \item Другая схема: \t{ftp://mirror.yandex.ru/}
+                   	\end{itemize}
+			\end{itemize}
+	\end{itemize}
+\begin{onlyenv}<1>
+	Можно закодировать так\footnote{True story: раздел <<Thinking in Sum Types>> по \href{https://chadaustin.me/2015/07/sum-types/}{ссылке}}:
+\begin{minted}{haskell}
+data URL = URL (Maybe (Maybe (Maybe String, String))) String
+URL Nothing        "../images/facepalm.jpg"
+URL (Just Nothing) "sewiki/index.php"
+URL (Just (Just (Nothing   , "google.com"))) "humans.txt"
+URL (Just (Just (Just "ftp", "mirror.yandex.ru"))) ""
+\end{minted}
+Ужасно, не правда ли?
+\end{onlyenv}
+
+\begin{onlyenv}<2>
+А можно так:
+\begin{minted}{haskell}
+data URL = Relative String
+         | Absolute String
+         | OtherDomain { domain :: String, path :: String }
+         | FullUrl     { schema :: String,
+                         domain :: String, path :: String }
+\end{minted}
+Мораль: иногда может помочь <<раскрыть по дистрибутивности>>.
+\end{onlyenv}
+\end{frame}

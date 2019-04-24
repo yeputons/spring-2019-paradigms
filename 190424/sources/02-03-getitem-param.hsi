@@ -1,0 +1,10 @@
+getItem "foo" 0
+getItem "foo" 1
+getItem "foo" 2
+-- Осторожно, частичное применение функции.
+map (getItem "foo") [-1..5]
+
+:t getItem
+:t getItem "foo"
+:t getItem "foo" 2
+:t getItem "foo" 5

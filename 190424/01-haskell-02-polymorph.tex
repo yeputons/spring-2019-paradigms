@@ -1,0 +1,72 @@
+\subsection{Статический полиморфизм функций}
+
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}
+	\begin{itemize}
+		\item Мы нигде не указывали типы ни аргументов функций, ни возвращаемых значений.
+		\item Свободно использовали функции для разных типов (вроде \t{map}).
+		\item Если набрать \t{:t map} в GHCI, увидим её тип:
+		\[
+			\t{\underbrace{(a~->~b)}_{\text{функция}}~->~\underbrace{[a]}_{\text{исходный список}}~->~\underbrace{[b]}_{\text{результат}}}.
+		\]
+		\item Справа от последней \t{->} "--- возвращаемое значение, до этого "--- аргументы.
+		\item Тут \t{a} и \t{b} "--- типовые переменные. На их месте может стоять любой тип.
+		\item Естественным образом получаем, что \t{map} вообще всё равно, с какими списками работать.
+		\item Haskell автоматически выводит наиболее общие типы для практически всех функций.
+		\item Все проверки типов "--- \textit{на этапе компиляции}.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Что могут делать функции}
+	\begin{itemize}
+		\item Что вообще может делать \textit{чистая} функция с типом \t{Bool~->~Bool}?
+		\item Их всего $2^2=4$ различных: всегда \t{True}, всегда \t{False}, отрицание, тождественная.
+		\item А что может делать полиморфная функция с типом \t{a~->~a}? \pause
+		\item Только возвращать свой аргумент "--- она не имеет права ничего про него предполагать. \pause
+		\item А функции с типом \t{a~->~b} не бывает "--- она в общем случае не может создать что-то типа \t{b}.
+		\item Что может делать \t{a~->~[a]}? \pause
+		\item Только создавать список из одинаковых элементов \textit{фиксированной} длины, которая не зависит от аргумента.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Игра}
+	Ваша задача "--- по типу функции угадать, что она делает.
+	\begin{tabular}{c|c}
+		\centering
+		Тип & Функция \\\hline
+		\t{a -> a} & \pause\t{id x = x} \\\pause
+		\t{a -> b -> a} & \pause\t{fst x y = x} \\\pause
+		\t{a -> b -> b} & \pause\t{snd x y = y} \\\pause
+		\t{(a -> b) -> a -> b} & \pause\t{apply f x = f x} \\\pause
+		\t{[a] -> a} & \pause\t{get xs = xs !! c} \\\pause
+		\t{(a -> Bool) -> [a] -> [a]} & \pause\t{filter} \\\pause
+		\t{(a -> Bool) -> [a] -> [a]} & \pause\t{dropWhile} \\\pause
+		\t{(a -> Int) -> [a] -> Int} & \pause\t{sum (map f xs)} \\\pause
+		\t{(a -> b -> b) -> b -> [a] -> b} & \pause\t{foldr}
+	\end{tabular}
+\end{frame}
+
+\begin{frame}{Вывод типов}
+	Ваша задача "--- по определению функции вывести наиболее общий тип.
+	\begin{tabular}{c|c}
+		\centering
+		Функция & Тип \\\hline
+		\t{foo x y = x y} & \pause \t{(a -> b) -> a -> b} \\\pause
+		\t{foo x y z = x y z} & \pause \t{(a -> b -> c) -> a -> b -> c} \\\pause
+		\t{foo x y z = (x y) + (x z)} & \pause \t{(a -> Int) -> a -> a -> Int} \\\pause
+		\t{foo x y = (x y) + y} & \pause \t{(Int -> Int) -> Int -> Int} \\\pause
+		\t{foo x y = (x y):y} & \pause \t{([a] -> a) -> [a] -> [a]} \\
+	\end{tabular}
+\end{frame}
+
+\begin{frame}{Резюме}
+	\begin{itemize}
+		\item Без полиморфизма функции высшего порядка были бы бесполезны.
+		\item Часто по типу полиморфной функции можно догадаться, что она делает.
+		\item Есть специальный поисковик \href{https://www.haskell.org/hoogle/}{Hoogle}, который ищет функции по их типу.
+		\item Hoogle "--- полезная штука, если вам нужна какая-то <<очевидно полезная>> функция. Найдётся всё.
+	\end{itemize}
+\end{frame}
