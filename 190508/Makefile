@@ -3,13 +3,13 @@
 SVGS=$(wildcard *.svg)
 SVGPDFS=$(patsubst %.svg,%.pdf,$(SVGS))
 
-all: 171204.pdf
+all: 190508.pdf
 
-171204.pdf: 171204.tex $(filter-out 171204.pdf, $(wildcard *.tex 171204.*)) $(SVGPDFS)
+190508.pdf: 190508.tex $(filter-out 190508.pdf, $(wildcard *.tex 190508.*)) $(SVGPDFS)
 	pdflatex -shell-escape "$<" && pdflatex -shell-escape "$<"
 
 %.pdf: %.svg
 	inkscape -D "--file=$<" "--export-pdf=$@"
 
 clean:
-	rm $(filter-out 171204.tex,$(wildcard 171204.*)) *.pdf >/dev/null 2>&1
+	rm $(filter-out 190508.tex,$(wildcard 190508.*)) *.pdf >/dev/null 2>&1
