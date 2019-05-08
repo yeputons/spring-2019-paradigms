@@ -1,10 +1,10 @@
 import qualified Data.Map.Strict as Map
 import Control.Arrow
 
-type Accounts = Map.Map String Int
+type Accounts = Map.Map String Integer
 increaseBalance k v = Map.insertWith (+) k v
 
-data Transaction = Transaction { from :: String, to :: String, amount :: Int }
+data Transaction = Transaction { from :: String, to :: String, amount :: Integer } deriving Show
 
 transactions =
     [

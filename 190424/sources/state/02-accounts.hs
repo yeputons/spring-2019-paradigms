@@ -1,9 +1,9 @@
 import qualified Data.Map.Strict as Map
 
-type Accounts = Map.Map String Int
+type Accounts = Map.Map String Integer
 increaseBalance k v state = Map.insertWith (+) k v state
 
-data Transaction = Transaction { from :: String, to :: String, amount :: Int }
+data Transaction = Transaction { from :: String, to :: String, amount ::  Integer } deriving Show
 
 transactions =
     [
