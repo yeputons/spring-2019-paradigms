@@ -91,3 +91,18 @@ with sqlite3.Connection("sql-injection.sqlite3") as db:
 
 	Мораль: никогда не собирайте SQL-запрос руками из переменных.
 \end{frame}
+
+\begin{frame}[fragile]{Бонус-2: ORM}
+	В объектно-ориентированных языках бывают ORM: <<обёртки>> над БД.
+	Пишете код на Python "--- оно транслируется в SQL.
+	Например, \href{https://ponyorm.org/}{PonyORM}:
+\begin{minted}{python}
+select(c for c in Customer if sum(c.orders.price) > 1000)
+\end{minted}
+
+	\begin{itemize}
+	\item Может быть удобнее использовать, но это скрывает потенциально сложные/тяжёлые обращения к БД.
+	\item SQL строго мощнее практически любого ORM.
+	\item Один большой SQL запрос практически всегда быстрее десяти мелких.
+	\end{itemize}
+\end{frame}
