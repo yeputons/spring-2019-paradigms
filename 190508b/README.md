@@ -1,4 +1,5 @@
 # Основное
+https://github.com/mtdvio/every-programmer-should-know
 https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/
 
 Символы - это сложно и не определено чётко.
@@ -29,6 +30,8 @@ Code point - минимальный элемент в юникоде.
 А слова/предложения - это ещё сложнее (см. segments).
 Чтобы с этим работать, в базах данных есть "collation" (туда ещё и форматирование дат, например):
 https://dba.stackexchange.com/questions/4270/what-does-collation-mean
+
+Про это всё уже, в целом, подумали, но надо помнить, чтобы не применять предположения про русский/английский.
 
 # RTL/LTR
 Некоторые языки (арабский, иврит) идут справа налево:
@@ -62,6 +65,7 @@ UTF-16 бывает little-endian и big-endian, поэтому когда-то 
 из двух 16-битных символов.
 Поэтому `reverse()` ломает эмоджи, взятие кусочка строки тоже ломает.
 Длина тоже не считается адекватно, потому что она считается в code unit'ах.
+Примеры на JavaScript: https://mathiasbynens.be/notes/javascript-unicode
 
 А вот в Python строчки хранят code unit'ы, поэтому там длина корректная.
 
@@ -82,4 +86,4 @@ UTF-16 бывает little-endian и big-endian, поэтому когда-то 
 * Для сравнений надо знать язык, нормализовывать строки и пользоваться спецфункциями (см. ß)
 * Используйте кодировку utf-8
 
-Пример библиотеки: ICU
+Пример библиотеки: ICU, она под капотом вроде как использует http://cldr.unicode.org/
