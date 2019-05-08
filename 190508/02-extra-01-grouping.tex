@@ -1,0 +1,59 @@
+\section{Запросы посложнее}
+\begin{frame}
+	\tableofcontents[currentsection]
+\end{frame}
+
+\subsection{Группировка строк}
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}[fragile]{GROUP BY "--- картинка}
+	\begin{center}
+		\begin{minipage}{0.4\textwidth}
+\begin{minted}{sql}
+SELECT SUM(Pop), GovForm
+FROM Country
+WHERE ...
+GROUP BY GovForm
+HAVING ...
+\end{minted}
+		\end{minipage}
+\vspace{10pt}
+
+		\begin{tabular}{rllclll}
+			\hline
+			& Pop & GovForm & & SUM(Pop) & GovForm & \\\hline
+			\multirow{6}{*}{$\xrightarrow{\t{WHERE}}$} & 618 & Republic & \rdelim\}{3}{20pt}[$\longrightarrow$] & \multirow{3}{*}{1134} & \multirow{3}{*}{Republic} & \multirow{6}{*}{$\xrightarrow{\t{HAVING}}$}\\
+			& 455 & Republic \\
+			& 61 & Republic \\
+			& 650 & Monarchy & \rdelim\}{2}{20pt}[$\longrightarrow$] & \multirow{2}{*}{17425} & \multirow{2}{*}{Monarchy} & \\
+			& 17364 & Monarch \\
+			& \vdots & \vdots & & \vdots & \vdots & \\
+		\end{tabular}
+	\end{center}
+\end{frame}
+
+\begin{frame}{GROUP BY}
+	\begin{itemize}
+		\item Полезно, когда мы хотим посчитать какую-то статистику по подмножествам строк.
+		\item Каждая агрегирующая функция работает только внутри группы.
+		\item Например, суммарное население стран с разным политическим строем.
+		\item Можно группировать по нескольким полям.
+		\item Условие \t{WHERE} применяется до группировки.
+		\item \t{ORDER BY} применяется после (так как группировка от порядка не зависит).
+		\item В \t{SELECT} можно использовать только агрегирующие функции и колонки, по которым сделана группировка
+			(иначе неясно, из какой строки выбирать).
+			Некоторые СУБД ругаются, некоторые делают что-то.
+		\item Можно дополнительно отфильтровать результаты после группировки при помощи \t{HAVING}.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Упражнения}
+	Посчитайте:
+	\begin{enumerate}
+		\item Среднюю площадь страны в зависимости от формы правления.
+		\item Средний квадрат площади страны в зависимости от формы правления.
+		\item Количество стран с площадью порядка миллиона, порядка двух миллионов, и так далее.
+	\end{enumerate}
+\end{frame}

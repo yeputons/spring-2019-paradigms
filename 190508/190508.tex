@@ -1,0 +1,53 @@
+\documentclass[utf8,xcolor=table]{beamer}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+\usepackage{dot2texi}
+\usepackage{minted}
+\usepackage{ulem}
+\usepackage{cmap}
+\usepackage{multirow}
+\usepackage{bigdelim}
+
+\hypersetup{colorlinks,linkcolor=blue,urlcolor=blue}
+
+\mode<presentation>{
+	\usetheme{CambridgeUS}
+}
+
+\newcommand{\svgimg}[1]{
+  \begin{center}
+	\includegraphics[width=\textwidth,height=0.8\textheight,keepaspectratio]{#1.pdf}
+  \end{center}
+}
+\renewcommand{\t}[1]{\ifmmode{\mathtt{#1}}\else{\texttt{#1}}\fi}
+
+\title{Базы данных и язык SQL}
+\author{Егор Суворов}
+\institute[СПбГУ]{Курс <<Парадигмы и языки программирования>>, группа 18.Б09-пу}
+\date[08.05.2019]{Среда, 8 мая 2019 года}
+
+\setlength{\arrayrulewidth}{1pt}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}{План занятия}
+	\tableofcontents
+\end{frame}
+
+\input{01-intro-01-what-is-db}
+\input{01-intro-02-usage}
+\input{01-intro-03-simple-sql}
+\input{01-intro-04-extra}
+\input{02-extra-01-grouping}
+\input{02-extra-02-joins}
+\input{02-extra-03-union}
+
+\end{document}

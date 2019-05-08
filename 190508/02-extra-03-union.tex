@@ -1,0 +1,18 @@
+\subsection{Объединения результатов запросов}
+\begin{frame}
+	\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
+\begin{frame}{UNION}
+	\begin{itemize}
+		\item Хотим вывести названия всех географических объектов из БД.
+		\item Делаем два (или больше) \t{SELECT} с одинаковым количеством столбцов в результате.
+		\item Если объединяем их через \t{UNION} "--- то в результате не будет одинаковых строк вообще (даже если они были внутри одного \t{SELECT}).
+		\item Если объединяем их через \t{UNION ALL} "--- то просто все результаты объединятся вместе.
+	\end{itemize}
+	На практике:
+	\begin{itemize}
+		\item Я ни разу не встречал.
+		\item Может потребоваться, если в БД есть похожие таблицы (например, \t{UsersUS} и \t{UsersEU}).
+	\end{itemize}
+\end{frame}
