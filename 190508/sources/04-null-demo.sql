@@ -18,7 +18,7 @@ SELECT * FROM NULL_DEMO;
 -- NULL не подходит под арифметические условия
 SELECT * FROM NULL_DEMO WHERE a <= 5 OR a > 5;
 
--- Но его можно искать отдельно
+-- Но его можно искать отдельно, обратите внимание на IS NULL (не = и <>)
 SELECT * FROM NULL_DEMO WHERE a IS NULL;
 
 -- В сумме и в количестве по конкретному столбцу игнорируется (но не в количестве строк).
@@ -32,3 +32,9 @@ SELECT AVG(a), AVG(b), SUM(a) / COUNT(a), SUM(b) / COUNT(b) FROM NULL_DEMO;
 -- игнорируются.
 SELECT MAX(a), MAX(b), AVG(a), AVG(b),
        SUM(a), SUM(b), COUNT(a), COUNT(b) FROM NULL_DEMO WHERE b = 4;
+
+-- Можно использовать IF
+SELECT IF(a IS NULL, 2, a), b from NULL_DEMO;
+
+-- А можно COALESCE
+SELECT COALESCE(a, 2), b from NULL_DEMO;
