@@ -124,3 +124,26 @@
     	      (в отличие от \t{Maybe})
     \end{itemize}
 \end{frame}
+
+\begin{frame}{Упражнения}
+	\begin{enumerate}
+		\item Скачайте файл \href{https://www.dropbox.com/s/jo26qgwysxsb8aj/literacy.sql?dl=0}{literacy.sql}.
+		\item Выберите имя для файла, где у вас будет лежать БД для тестов (например, \t{literacy.sqlite3}.
+		\item Выполните запросы из \t{literacy.sql}:
+			\begin{center}
+				\t{sqlite3 literacy.sqlite3 < literacy.sql}
+			\end{center}
+			Каждый раз, когда вы будете выполнять команды из \t{literacy.sql}, таблицы
+			будут полностью пересозданы.
+			Не бойтесь что-то сломать.
+		\item
+		     Выполните SQL-запросы (либо в командной строке, либо в GUI):
+		     \begin{enumerate}
+		     	\item Всю информацию по всем странам.
+		     	\item Первые десять стран (если сортировать по названию).
+		     	\item Средние население и площадь страны.
+		     	\item Площадь и население Франции.
+		     	\item Количество французских территорий и их суммарную площадь и население.
+		     \end{enumerate}
+	\end{enumerate}
+\end{frame}
