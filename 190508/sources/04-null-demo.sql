@@ -33,8 +33,6 @@ SELECT AVG(a), AVG(b), SUM(a) / COUNT(a), SUM(b) / COUNT(b) FROM NULL_DEMO;
 SELECT MAX(a), MAX(b), AVG(a), AVG(b),
        SUM(a), SUM(b), COUNT(a), COUNT(b) FROM NULL_DEMO WHERE b = 4;
 
--- Можно использовать IF
-SELECT IF(a IS NULL, 2, a), b from NULL_DEMO;
-
--- А можно COALESCE
-SELECT COALESCE(a, 2), b from NULL_DEMO;
+-- Можно использовать COALESCE: возвращает первый не-NULL
+-- В некоторых диалектах есть функция IF, в sqlite есть только синтаксис CASE
+SELECT COALESCE(a, 0), b from NULL_DEMO;

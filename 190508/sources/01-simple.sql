@@ -28,8 +28,14 @@ SELECT * FROM Country WHERE GovernmentForm NOT LIKE 'Dependent Territory%';
 
 -- Можно запросить несколько раз один столбец (непонятно, зачем), выполнить
 -- арифметическое действие над столбцами, или просто взять константу.
+-- На самом деле в SELECT мы ставим выражения, а не просто столбцы.
 SELECT Name, Population, SurfaceArea, 'wow',
        Population / SurfaceArea, Name
+FROM Country;
+
+-- Можно дать имя столбцу
+SELECT Name, Population, SurfaceArea, 'wow',
+       Population / SurfaceArea AS Density, Name
 FROM Country;
 
 -- Столбцам в результате SELECT можно давать другие названия.
